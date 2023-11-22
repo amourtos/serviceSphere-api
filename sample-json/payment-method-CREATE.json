@@ -1,0 +1,62 @@
+{
+  "globalId": "GLWEB1241345",
+  "sourceId": "WEB",
+  "transactionType": "PAYMENT-METHOD",
+  "transactionOperation": "CREATE",
+  "merchantId": "acct_aPQqTi4bux4hLjjqVWWkD",
+  "customerId": "",
+  "referenceIds": {
+    "chargeId": "",
+    "checkoutSessionId": "",
+    "disputeId": "",
+    "merchantAppId": "",
+    "paymentIntentId": "",
+    "paymentMethodId": "",
+    "refundId": "",
+    "subscriptionId": ""
+  },
+  "authorization": {
+    "payFac-token": "asdf123",
+    "tilled-token": "qwerty789"
+  },
+  "transactionInfo": {
+    "metadata": {
+      "order_id": "100123",
+      "internal_customer_id": "7cb1159d-875e-47ae-a309-319fa7ff395b"
+    },
+    "type": "card",
+    "payment_token": "string",
+    "nick_name": "Default card",
+    "billing_details": {
+      "address": {
+        "street": "123 test street",
+        "street2": "",
+        "city": "Medford",
+        "state": "NJ",
+        "zip": "08055",
+        "country": "United States"
+      },
+      "email": "123test@test.com",
+      "name": "Alex Mourtos",
+      "phone": "609-555-5555"
+    },
+    "ach_debit": {
+      "account_type": "",
+      "account_number": "",
+      "routing_number": "",
+      "account_holder_name": ""
+    },
+    "eft_debit": {
+      "account_number": "",
+      "account_holder_name": "",
+      "institution_id": "",
+      "transit_number": ""
+    },
+    "card": {
+      "cvc": "123",
+      "exp_month": 10,
+      "exp_year": 2050,
+      "number": "1234123412341234"
+    }
+  }
+}

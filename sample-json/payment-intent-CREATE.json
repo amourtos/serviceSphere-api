@@ -1,0 +1,57 @@
+{
+  "globalId": "GLWEB1241345",
+  "sourceId": "WEB",
+  "transactionType": "PAYMENT_INTENT",
+  "transactionOperation": "CREATE",
+  "merchantId": "acct_aPQqTi4bux4hLjjqVWWkD",
+  "customerId": "",
+  "referenceIds": {
+    "chargeId": "",
+    "checkoutSessionId": "",
+    "disputeId": "",
+    "merchantAppId": "",
+    "paymentIntentId": "",
+    "paymentMethodId": "",
+    "refundId": "",
+    "subscriptionId": ""
+  },
+  "authorization": {
+    "payFac-token": "asdf123",
+    "tilled-token": "qwerty789"
+  },
+  "transactionInfo": {
+    "paymentIntentTrx": {
+      "metadata": {
+        "order_id": "123123",
+        "internal_customer_id": "7cb1159d-875e-47ae-a309-319fa7ff395b"
+      },
+      "payment_method_types": [
+        "card"
+      ],
+      "statement_descriptor_suffix": "asdf123",
+      "amount": 100,
+      "platform_fee_amount": 100,
+      "currency": "usd",
+      "payment_method_id": "pm_vbqSDc6MvE6s2JgfeBazf",
+      "capture_method": "automatic",
+      "confirm": true,
+      "occurrence_type": "consumer_ad_hoc",
+      "level3": {
+        "line_items": [
+          {
+            "product_code": "asdf",
+            "product_description": "pizza",
+            "quantity": 1,
+            "tax_amount": 100,
+            "unit_amount": 100
+          }
+        ],
+        "shipping_address_zip": "string",
+        "shipping_address_country": "st",
+        "shipping_amount": 100,
+        "shipping_from_zip": "string",
+        "duty_amount": 100
+      }
+    }
+  }
+}

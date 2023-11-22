@@ -1,0 +1,101 @@
+{
+  "globalId" : "GL1241345",
+  "sourceId" : "WEBAPP",
+  "transactionType": "MERCHANT-APPLICATION",
+  "transactionOperation": "UPDATE",
+  "merchantId": "acct_O2Qwjaomy1kv2MHsFYffl",
+  "customerId": "",
+  "referenceIds": {
+    "chargeId": "",
+    "checkoutSessionId": "",
+    "disputeId": "",
+    "merchantAppId": "",
+    "paymentIntentId": "",
+    "paymentMethodId": "",
+    "refundId": "",
+    "subscriptionId": ""
+  },
+  "authorization": {
+    "payFac-token": "asdf123",
+    "tilled-token": "qwerty789"
+  },
+  "transactionInfo": {
+    "accept_terms_and_conditions": true,
+    "business_legal_entity": {
+      "ach_bank_account": {
+        "account_number": "123456",
+        "routing_number": "987654321",
+        "type": "checking",
+        "account_holder_name": "Alex Mourtos",
+        "bank_name": "Bank of Mourtos"
+      },
+      "type": "PROFIT",
+      "name": "Mourtos Printing",
+      "legal_name": "string",
+      "tax_identification_number": "123456789",
+      "description": "Printing solutions for all",
+      "address": {
+        "street": "123 test street",
+        "street2": "",
+        "city": "Testing",
+        "state": "NJ",
+        "zip": "08055",
+        "country": "United States"
+      },
+      "company_email": "mourtosPrinting@gmail.com",
+      "category": "ACCT",
+      "phone": "609-654-4832",
+      "currency": "usd",
+      "yearly_volume_range": "LOW",
+      "average_transaction_amount": 1,
+      "average_transactions_per_month": 1,
+      "region": "US",
+      "locale": "en_US",
+      "statement_descriptor": "stuff",
+      "bank_account": {
+        "account_number": "123456",
+        "routing_number": "987654321",
+        "type": "checking",
+        "account_holder_name": "Alex Mourtos",
+        "bank_name": "Bank of Mourtos"
+      },
+      "principals": [
+        {
+          "id": "123456",
+          "is_applicant": true,
+          "is_control_prong": true,
+          "job_title": "Owner",
+          "first_name": "Alex",
+          "middle_name": "",
+          "last_name": "Mourtos",
+          "email": "mourtos004@gmail.com",
+          "phone": "609-654-4832",
+          "ssn": "123-45-1234",
+          "date_of_birth": "2019-08-24T14:15:22Z",
+          "address": {
+            "street": "123 testing street",
+            "street2": "",
+            "city": "Medford",
+            "state": "NJ",
+            "zip": "08055",
+            "country": "United States",
+            "years_at_address": 8
+          },
+          "previous_address": {
+            "street": "string",
+            "street2": "string",
+            "city": "string",
+            "state": "string",
+            "zip": "string",
+            "country": "string",
+            "years_at_address": 8
+          },
+          "percentage_shareholding": 100,
+          "nationality": "AF",
+          "type": "director"
+        }
+      ],
+      "website": "string"
+    }
+  }
+}

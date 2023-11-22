@@ -1,0 +1,33 @@
+{
+  "globalId": "GLWEB1241345",
+  "sourceId": "WEB",
+  "transactionType": "CUSTOMER_TRANSACTION",
+  "transactionOperation": "GET_ALL",
+  "merchantId": "acct_aPQqTi4bux4hLjjqVWWkD",
+  "customerId": "",
+  "referenceIds": {
+    "chargeId": "",
+    "checkoutSessionId": "",
+    "disputeId": "",
+    "merchantAppId": "",
+    "paymentIntentId": "",
+    "paymentMethodId": "",
+    "refundId": "",
+    "subscriptionId": ""
+  },
+  "authorization": {
+    "payFac-token": "asdf123",
+    "tilled-token": "qwerty789"
+  },
+  "transactionInfo": {
+    "metadata": {
+      "order_id": "100123",
+      "internal_customer_id": "7cb1159d-875e-47ae-a309-319fa7ff395b"
+    },
+    "first_name": "string",
+    "middle_name": "string",
+    "last_name": "string",
+    "email": "string",
+    "phone": "string"
+  }
+}

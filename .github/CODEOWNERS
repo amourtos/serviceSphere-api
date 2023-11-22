@@ -1,0 +1,5 @@
+# GitHub CODEOWNERS file
+# Defines code owners for the repository
+
+# Specify code owners for all files
+*   @amourtos
