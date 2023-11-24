@@ -1,10 +1,11 @@
 import express, { Express, Request, Response } from 'express';
-import { ILogObj, Logger } from 'tslog';
 import connectDb from './config/mongo';
 import * as bodyParser from 'body-parser';
+import { BoardPostController } from './controllers/BoardPost.controller';
+import { UserController } from './controllers/User.controller';
+import { logger } from './config/logger';
 
 const app: Express = express();
-const log: Logger<ILogObj> = new Logger();
 
 const port = process.env.PORT;
 
@@ -19,7 +20,10 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Typescript and node works');
 });
 
+app.use('/board-posts', new BoardPostController().router);
+app.use('/user', new UserController().router);
+
 // listen
 app.listen(port, () => {
-  log.info(`Listening on ${port}`);
+  logger.info(`Listening on ${port}`);
 });
