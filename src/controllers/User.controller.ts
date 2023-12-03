@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { logger } from '../config/logger';
 import { ApiResponseStatus } from '../models/ApiResponseStatus.model';
-import { User } from '../models/User/User.model';
+import { User } from '../models/User.model';
 import { UserService } from '../services/User.service';
 
 export class UserController {
@@ -24,9 +24,9 @@ export class UserController {
   private createUser = async (req: Request, res: Response): Promise<Response<User> | undefined> => {
     logger.info('createUser request received.');
     try {
-      const { customer, contractor, contact, address } = req.body;
+      const { userType, contact, address } = req.body;
       // call service method to create new user
-      const newUser: User = await this.userService.createUser(customer, contractor, contact, address);
+      const newUser: User = await this.userService.createUser(userType, contact, address);
       const response: object = {
         message: 'User created successfully.',
         data: newUser

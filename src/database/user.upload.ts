@@ -1,8 +1,8 @@
-import { User } from '../models/User/User.model';
+import { User } from '../models/User.model';
 import { logger } from '../config/logger';
-import { UserModel } from '../models/User/User.schema';
+import { UserModel } from '../schemas/User.schema';
 import { Document } from 'mongoose';
-import { IUser } from '../models/User/User.interface';
+import { IUser } from '../interfaces/User.interface';
 
 export async function saveNewUser(user: User): Promise<IUser> {
   try {

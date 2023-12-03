@@ -1,5 +1,5 @@
-import { generateId } from '../../middleware/generateId.middleware';
-import { Constants } from '../../util/constants';
+import { generateId } from '../middleware/generateUserId.middleware';
+import { Constants } from '../util/constants';
 
 export class BoardPost {
   boardPostId: string;

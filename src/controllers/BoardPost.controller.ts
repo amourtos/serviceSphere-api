@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { logger } from '../config/logger';
 import { ApiResponseStatus } from '../models/ApiResponseStatus.model';
-import { BoardPost } from '../models/BoardPost/BoardPost.model';
+import { BoardPost } from '../models/BoardPost.model';
 
 export class BoardPostController {
   public router: Router;

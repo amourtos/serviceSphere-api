@@ -1,4 +1,4 @@
-import { Tag } from './BoardPost.model';
+import { Tag } from '../models/BoardPost.model';
 
 export interface IBoardPost extends Document {
   boardPostId: string;
