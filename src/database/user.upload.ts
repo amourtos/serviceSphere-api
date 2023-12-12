@@ -18,3 +18,22 @@ export async function saveNewUser(user: User): Promise<IUser> {
     throw new Error('Failed to save user');
   }
 }
+
+export async function markUserAsVerified(userId: string): Promise<void> {
+  try {
+    const filter = { userId };
+    const update = { $set: { isVerified: true } };
+
+    const result = await UserModel.findOneAndUpdate(filter, update, { new: true });
+
+    if (result) {
+      logger.info(`User with userId ${userId} has been marked as verified.`);
+    } else {
+      logger.warn(`User with userId ${userId} not found.`);
+      // Handle the case where the user is not found
+    }
+  } catch (error: any) {
+    logger.error(`Error updating user with userId ${userId}:`, error.message);
+    throw new Error('Failed to verify user.');
+  }
+}

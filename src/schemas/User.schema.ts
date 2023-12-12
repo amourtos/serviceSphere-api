@@ -5,6 +5,7 @@ import { UserType } from '../enums/UserType.enum';
 const userSchema: Schema<IUser> = new Schema({
   userId: { type: String, required: true },
   userType: { type: String, required: true, enum: Object.values(UserType) },
+  isVerified: { type: Boolean, required: true },
   contact: { type: Object, required: true },
   address: { type: Object, required: true },
   incrementingNumber: { type: Number }
