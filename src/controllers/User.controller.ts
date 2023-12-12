@@ -5,6 +5,9 @@ import { User } from '../models/User.model';
 import { UserService } from '../services/User.service';
 import { validateVerificationCode } from '../database/verificationCode.download';
 import { markUserAsVerified } from '../database/user.upload';
+import { Constants } from '../util/constants';
+import { Contact } from '../interfaces/Contact.interface';
+import { Address } from '../interfaces/Address.interface';
 
 export class UserController {
   public router: Router;
@@ -20,7 +23,8 @@ export class UserController {
     this.router.post('/create', this.createUser);
     this.router.post('/verify/:userId', this.verifyUser);
     this.router.get('/get/:userId', this.getUser);
-    this.router.patch('/edit/:userId', this.editUser);
+    this.router.patch('/edit/contact/:userId', this.editUserContact);
+    this.router.patch('/edit/address/:userId', this.editUserAddress);
     this.router.delete('/delete/:userId', this.deleteUser);
   }
 
@@ -56,8 +60,36 @@ export class UserController {
   };
 
   private getUser = async (req: Request, res: Response): Promise<Response<User> | undefined> => {
+    logger.info('Request received.');
+    const response = {
+      message: '',
+      user: null
+    };
+    try {
+      const userId: string = req.params.userId;
+      const user: User | null = await this.userService.retrieveUser(userId);
+      // not found scenario
+      if (!user) {
+        return res.status(ApiResponseStatus.NOT_FOUND).json(response);
+      }
+      return res.status(ApiResponseStatus.SUCCESS).json({ message: Constants.SUCCESS });
+    } catch (error: any) {
+      logger.error('Error generating token:', error.message);
+      res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
+    }
+  };
+
+  private editUserContact = async (req: Request, res: Response): Promise<Response<User> | undefined> => {
     try {
       logger.info('Request received.');
+      const contact: Contact = req.body.contact;
+      const userId: string = req.params.userId;
+      const response = {
+        message: '',
+        user: null
+      };
+      const updatedUser: User | null = await this.userService.updateUserContact(userId, contact);
+      if (!updatedUser) return res.status(ApiResponseStatus.NOT_FOUND).json(response);
       return res.status(ApiResponseStatus.SUCCESS).json({ message: 'Success' });
     } catch (error: any) {
       logger.error('Error generating token:', error.message);
@@ -65,9 +97,17 @@ export class UserController {
     }
   };
 
-  private editUser = async (req: Request, res: Response): Promise<Response<User> | undefined> => {
+  private editUserAddress = async (req: Request, res: Response): Promise<Response<User> | undefined> => {
     try {
       logger.info('Request received.');
+      const address: Address = req.body.address;
+      const userId: string = req.params.userId;
+      const response = {
+        message: '',
+        user: null
+      };
+      const updatedUser: User | null = await this.userService.updateUserAddress(userId, address);
+      if (!updatedUser) return res.status(ApiResponseStatus.NOT_FOUND).json(response);
       return res.status(ApiResponseStatus.SUCCESS).json({ message: 'Success' });
     } catch (error: any) {
       logger.error('Error generating token:', error.message);
