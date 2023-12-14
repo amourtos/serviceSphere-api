@@ -4,4 +4,5 @@ export class Constants {
   public static CONTRACTOR_ID = 'CID';
   public static FAILED = 'FAILED';
   public static SUCCESS = 'SUCCESS';
+  public static NOT_FOUND = 'NOT_FOUND';
 }

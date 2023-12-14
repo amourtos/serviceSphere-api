@@ -1,8 +1,8 @@
-import { User } from '../models/User.model';
-import { logger } from '../config/logger';
-import { UserModel } from '../schemas/User.schema';
+import { User } from '../../models/User.model';
+import { logger } from '../../config/logger';
+import { UserModel } from '../../schemas/User.schema';
 import { Document } from 'mongoose';
-import { IUser } from '../interfaces/User.interface';
+import { IUser } from '../../interfaces/User.interface';
 
 export async function getUserById(userId: string): Promise<User | null> {
   let user: User | null = null;

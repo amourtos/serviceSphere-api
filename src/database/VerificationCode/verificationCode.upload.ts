@@ -1,5 +1,5 @@
-import { logger } from '../config/logger';
-import { VerificationCodeModel } from '../schemas/VerificationCodes.schema';
+import { logger } from '../../config/logger';
+import { VerificationCodeModel } from '../../schemas/VerificationCodes.schema';
 
 export async function saveVerificationCode(userId: string, verificationCode: string): Promise<void> {
   logger.info(`userId: ${userId} | Saving new verificationCode to collection.`);

@@ -3,8 +3,8 @@ import { logger } from '../config/logger';
 import { ApiResponseStatus } from '../models/ApiResponseStatus.model';
 import { User } from '../models/User.model';
 import { UserService } from '../services/User.service';
-import { validateVerificationCode } from '../database/verificationCode.download';
-import { markUserAsVerified } from '../database/user.upload';
+import { validateVerificationCode } from '../database/VerificationCode/verificationCode.download';
+import { markUserAsVerified } from '../database/User/user.upload';
 import { Constants } from '../util/constants';
 import { Contact } from '../interfaces/Contact.interface';
 import { Address } from '../interfaces/Address.interface';
@@ -28,21 +28,28 @@ export class UserController {
     this.router.delete('/delete/:userId', this.deleteUser);
   }
 
-  private createUser = async (req: Request, res: Response): Promise<Response<User> | undefined> => {
+  private createUser = async (req: Request, res: Response): Promise<Response<User> | null> => {
     logger.info('createUser request received.');
     try {
-      const { userType, contact, address } = req.body;
+      const { userType, password, contact, address } = req.body;
       // call service method to create new user
-      const newUser: User = await this.userService.createUser(userType, contact, address);
+      const newUser: User = await this.userService.createUser(userType, password, contact, address);
+
       const response: object = {
         message: 'User created successfully.',
-        data: newUser
+        user: newUser
       };
+      if (!newUser) {
+        logger.warn('User failed to create');
+        return res.status(ApiResponseStatus.NO_CONTENT).json(response);
+      }
+      logger.info('User created successfully');
       return res.status(ApiResponseStatus.SUCCESS).json(response);
     } catch (error: any) {
       logger.error('Error generating User:', error.message);
       res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
     }
+    return null;
   };
 
   private verifyUser = async (req: Request, res: Response): Promise<any> => {
@@ -61,18 +68,19 @@ export class UserController {
 
   private getUser = async (req: Request, res: Response): Promise<Response<User> | undefined> => {
     logger.info('Request received.');
-    const response = {
-      message: '',
-      user: null
-    };
     try {
       const userId: string = req.params.userId;
-      const user: User | null = await this.userService.retrieveUser(userId);
+      const response = {
+        message: '',
+        user: await this.userService.retrieveUser(userId)
+      };
       // not found scenario
-      if (!user) {
+      if (!response.user) {
+        response.message = Constants.NOT_FOUND;
         return res.status(ApiResponseStatus.NOT_FOUND).json(response);
       }
-      return res.status(ApiResponseStatus.SUCCESS).json({ message: Constants.SUCCESS });
+      response.message = Constants.SUCCESS;
+      return res.status(ApiResponseStatus.SUCCESS).json(response);
     } catch (error: any) {
       logger.error('Error generating token:', error.message);
       res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });

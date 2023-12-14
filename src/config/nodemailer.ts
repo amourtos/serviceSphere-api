@@ -17,3 +17,9 @@ const nodeMailerTransporter = nodemailer.createTransport({
 logger.info(`Nodemailer Logged in with email: ${userName}`);
 
 export default nodeMailerTransporter;
+
+export function emailGreeting(firstName: string, lastName: string, verificationCode: string): string {
+  return `
+  Thank you ${firstName} ${lastName} for signing up for ServiceSphere. 
+  Your User verification Code is ${verificationCode}`;
+}

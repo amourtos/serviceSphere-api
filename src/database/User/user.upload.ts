@@ -1,9 +1,9 @@
-import { User } from '../models/User.model';
-import { logger } from '../config/logger';
-import { UserModel } from '../schemas/User.schema';
-import { IUser } from '../interfaces/User.interface';
-import { Contact } from '../interfaces/Contact.interface';
-import { Address } from '../interfaces/Address.interface';
+import { User } from '../../models/User.model';
+import { logger } from '../../config/logger';
+import { UserModel } from '../../schemas/User.schema';
+import { IUser } from '../../interfaces/User.interface';
+import { Contact } from '../../interfaces/Contact.interface';
+import { Address } from '../../interfaces/Address.interface';
 
 export async function saveNewUser(user: User): Promise<IUser> {
   try {
