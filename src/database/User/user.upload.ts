@@ -4,6 +4,7 @@ import { UserModel } from '../../schemas/User.schema';
 import { IUser } from '../../interfaces/User.interface';
 import { Contact } from '../../interfaces/Contact.interface';
 import { Address } from '../../interfaces/Address.interface';
+import { Constants } from '../../util/constants';
 
 export async function saveNewUser(user: User): Promise<IUser> {
   try {
@@ -75,4 +76,19 @@ export async function updateAddress(address: Address, userId: string): Promise<U
     logger.error(`Error updating user with userId ${userId}:`, error.message);
     throw new Error('Failed to verify user.');
   }
+}
+
+export async function deleteUserById(userId: string): Promise<string> {
+  try {
+    const query = { userId: userId };
+    const responseUpdate = await UserModel.findOneAndDelete(query);
+    if (!responseUpdate) {
+      logger.error(`Deleting user: ${userId} FAILED`);
+      return Constants.FAILED;
+    }
+  } catch (error) {
+    logger.error(error);
+    throw new Error('Failed to delete user');
+  }
+  return Constants.SUCCESS;
 }

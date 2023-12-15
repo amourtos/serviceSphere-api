@@ -1,8 +1,6 @@
 import { User } from '../../models/User.model';
 import { logger } from '../../config/logger';
 import { UserModel } from '../../schemas/User.schema';
-import { Document } from 'mongoose';
-import { IUser } from '../../interfaces/User.interface';
 
 export async function getUserById(userId: string): Promise<User | null> {
   let user: User | null = null;
@@ -22,5 +20,23 @@ export async function getUserById(userId: string): Promise<User | null> {
     logger.error(`Error retrieving user with userId ${userId}:`, error.message);
     throw new Error('Failed to retrieve user.');
   }
+  return user;
+}
+
+export async function getUserByEmail(email: string): Promise<User | null> {
+  logger.info(`Retrieving user by email:${email}`);
+  const user: User | null = null;
+  try {
+    const filter = { email: email };
+    const result = await UserModel.findOne(filter);
+    if (result) {
+      logger.info('User found.');
+      return result as User;
+    }
+  } catch (error: any) {
+    logger.error(`Error retrieving user with email ${email}:`, error.message);
+    throw new Error('Failed to retrieve user.');
+  }
+  logger.warn(`No user found with email:${email}`);
   return user;
 }

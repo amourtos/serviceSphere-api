@@ -1,7 +1,13 @@
 import { Contact } from '../interfaces/Contact.interface';
 import { Address } from '../interfaces/Address.interface';
 import { User } from '../models/User.model';
-import { markUserAsVerified, saveNewUser, updateAddress, updateContact } from '../database/User/user.upload';
+import {
+  deleteUserById,
+  markUserAsVerified,
+  saveNewUser,
+  updateAddress,
+  updateContact
+} from '../database/User/user.upload';
 import { UserType } from '../enums/UserType.enum';
 import { validateVerificationCode } from '../database/VerificationCode/verificationCode.download';
 import { logger } from '../config/logger';
@@ -16,10 +22,15 @@ import { EmailOptions } from '../interfaces/EmailOptions.interface';
 import { emailGreeting } from '../config/nodemailer';
 import { sendEmail } from '../middleware/nodemailer.middleware';
 import { saveVerificationCode } from '../database/VerificationCode/verificationCode.upload';
+import { Constants } from '../util/constants';
+import { IServiceResponse } from '../interfaces/ServiceResponse.interface';
+import { ServiceUtil } from '../util/Service.util';
+import { ServiceStatusEnum } from '../enums/ServiceStatus.enum';
+import { authenticateUser } from '../database/UserCredentials/userCredentials.download';
 
 export class UserService {
   protected userServiceUtil: UserServiceUtil = new UserServiceUtil();
-
+  message = '';
   /**
    * Create new User
    * <p>Step 1: generate new user object </p>
@@ -33,7 +44,12 @@ export class UserService {
    * @param contact
    * @param address
    */
-  public async createUser(userType: UserType, password: string, contact: Contact, address: Address): Promise<User> {
+  public async createUser(
+    userType: UserType,
+    password: string,
+    contact: Contact,
+    address: Address
+  ): Promise<IServiceResponse> {
     // 1. generate new User
     const newUser: User = await User.generateNewUser(userType, contact, address);
     const userCreds: IUserCredentials = {
@@ -44,16 +60,25 @@ export class UserService {
 
     // 2. check if user is duplicate
     if (await this.userServiceUtil.isUserDuplicate(userCreds.email)) {
-      throw new Error(`Duplicate Email detected: ${userCreds.email}`);
+      this.message = `Duplicate Email detected: ${userCreds.email}`;
+      return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, { newUser });
     }
 
     // 3. save credentials
     const savedCreds: IUserCredentials = await saveUserCredentials(userCreds);
-    if (!savedCreds) throw new Error("Error saving user's credentials");
+    if (!savedCreds) {
+      this.message = "Error saving user's credentials";
+      return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, { newUser });
+      // throw new Error("Error saving user's credentials");
+    }
 
     // 4. save new user
     const savedUser: IUser = await saveNewUser(newUser);
-    if (!savedUser) throw new Error(`Error saving new User to DB: ${newUser.userId}`);
+    if (!savedUser) {
+      // throw new Error(`Error saving new User to DB: ${newUser.userId}`);
+      this.message = `Error saving new User to DB: ${newUser.userId}`;
+      return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, { newUser });
+    }
 
     // 5. generate code for user verification
     const verificationCode: string = generateVerificationCode();
@@ -67,8 +92,8 @@ export class UserService {
       text: emailGreeting(contact.firstName, contact.lastName, verificationCode)
     };
     await sendEmail(emailOptions);
-
-    return newUser;
+    this.message = 'User created successfully. Email verification sent.';
+    return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, { newUser });
   }
 
   /**
@@ -76,70 +101,108 @@ export class UserService {
    * @param userId
    * @param verificationCode
    */
-  public async verifyAndUpdateUser(userId: string, verificationCode: string): Promise<any> {
-    let response: object = {};
-    const isVerificationCodeValid = await validateVerificationCode(userId, verificationCode);
+  public async verifyAndUpdateUser(userId: string, verificationCode: string): Promise<IServiceResponse> {
+    logger.info(`Verifying user:${userId} --- START`);
+    const isVerificationCodeValid: boolean = await validateVerificationCode(userId, verificationCode);
     // update user doc to set flag as true
     if (isVerificationCodeValid) {
       await markUserAsVerified(userId);
-      response = {
-        message: `userId: ${userId} | user verified successfully`,
-        isVerified: true
-      };
-      return response;
+      logger.info(`Verifying user:${userId} --- SUCCESS`);
+      this.message = `verificationCode is valid for user: ${userId}`;
+      return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, {});
     }
     // if verificationCode is invalid
-    response = {
-      message: `userId: ${userId} | VerificationCode is invalid.`,
-      isVerified: false
-    };
-    return response;
+    logger.info(`Verifying user:${userId} --- FAILED`);
+    this.message = `userId: ${userId} | VerificationCode is invalid.`;
+    return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, {});
   }
 
-  public async retrieveUser(userId: string): Promise<User | null> {
+  /**
+   * Retrieve User by userId property. If no user is found, return data as null
+   * @param userId
+   */
+  public async retrieveUser(userId: string): Promise<IServiceResponse> {
     logger.info(`Retrieving user: ${userId} --- START`);
-    let userResponse: User | null = null;
     // retrieve user from DB
-    userResponse = await getUserById(userId);
-    if (!userResponse) {
-      logger.warn(`User not found with id:${userId}`);
-      return userResponse;
+    const user: User | null = await getUserById(userId);
+    if (!user) {
+      this.message = `User not found with id:${userId}`;
+      logger.warn(this.message);
+      return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, { user });
     }
     logger.info(`Retrieving user: ${userId} --- COMPLETE`);
-    return userResponse;
+    this.message = `User: ${userId} successfully retrieved.`;
+    return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, { user });
   }
 
-  public async updateUserContact(userId: string, contact: Contact): Promise<User | null> {
+  public async updateUserContact(userId: string, contact: Contact): Promise<IServiceResponse> {
     logger.info(`Updating user: ${userId} contact information --- START`);
     const updatedUser: User | null = await updateContact(contact, userId);
     if (!updatedUser) {
-      logger.warn(`User not found with id:${userId}`);
-      return updatedUser;
+      this.message = `User not found with id:${userId}`;
+      logger.warn(this.message);
+      return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, { updatedUser });
     }
     logger.info(`Updating user: ${userId} contact information --- COMPLETE`);
-    return updatedUser;
+    this.message = `User: ${userId} successfully updated contact information.`;
+    return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, { updatedUser });
   }
 
-  public async updateUserAddress(userId: string, address: Address): Promise<User | null> {
-    logger.info(`Updating user: ${userId} contact information --- START`);
+  public async updateUserAddress(userId: string, address: Address): Promise<IServiceResponse> {
+    logger.info(`Updating user: ${userId} address information --- START`);
     const updatedUser: User | null = await updateAddress(address, userId);
     if (!updatedUser) {
-      logger.warn(`User not found with id:${userId}`);
-      return updatedUser;
+      this.message = `User not found with id:${userId}`;
+      logger.warn(this.message);
+      return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, { updatedUser });
     }
-    logger.info(`Updating user: ${userId} contact information --- COMPLETE`);
-    return updatedUser;
+    logger.info(`Updating user: ${userId} address information --- COMPLETE`);
+    this.message = `User: ${userId} successfully updated address information.`;
+    return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, { updatedUser });
   }
 
   /**
    * Delete user by userId
    * @param userId
    */
-  public async deleteUser(userId: string): Promise<string> {
-    const message = '';
+  public async deleteUser(userId: string): Promise<IServiceResponse> {
     logger.info(`Deleting user: ${userId} --- START`);
+    try {
+      this.message = await deleteUserById(userId);
+      if (this.message === Constants.FAILED) {
+        this.message = `User deletion failed for user: ${userId}`;
+        logger.error(this.message);
+        return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, {});
+      }
+    } catch {
+      logger.info(`Deleting user: ${userId} --- ERROR`);
+      throw new Error(`Deleting user: ${userId} --- ERROR`);
+    }
     logger.info(`Deleting user: ${userId} --- COMPLETE`);
-    logger.info(`Deleting user: ${userId} --- ERROR`);
-    return message;
+    return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, {});
+  }
+
+  public async loginUser(email: string, password: string, userId: string): Promise<IServiceResponse> {
+    logger.info(`Logging in user: ${userId} --- START`);
+    try {
+      const isAuthenticated: boolean = await authenticateUser(email, password);
+
+      if (isAuthenticated) {
+        this.message = 'Authentication successful.';
+        logger.info(this.message);
+        const accessToken: string = this.userServiceUtil.generateAccessToken(userId);
+        // generate a session and manage here
+
+        return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, {
+          accessToken: accessToken
+        });
+      }
+    } catch (error: any) {
+      this.message = `Error: ${error.message}`;
+      logger.error(this.message);
+      return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, {});
+    }
+    this.message = `Logging in user:${userId} failed.`;
+    return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, {});
   }
 }

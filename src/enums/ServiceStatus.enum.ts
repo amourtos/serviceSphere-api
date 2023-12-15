@@ -1,0 +1,4 @@
+export enum ServiceStatusEnum {
+  SERVICE_FAILURE = 'SERVICE_FAILURE',
+  SERVICE_SUCCESS = 'SERVICE_SUCCESS'
+}

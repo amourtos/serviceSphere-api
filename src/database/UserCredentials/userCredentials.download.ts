@@ -1,6 +1,7 @@
 import { logger } from '../../config/logger';
 import { UserCredentialsModel } from '../../schemas/UserCredentials.schema';
 import { IUserCredentials } from '../../interfaces/UserCredentials.interface';
+import bcrypt from 'bcryptjs';
 
 /**
  * Get a user by userId and email. If there is no user, function will return null
@@ -41,4 +42,26 @@ export async function findUserByEmail(email: string): Promise<IUserCredentials |
     logger.error(`Error saving user: ${error.message}`);
     throw new Error('Failed to save user');
   }
+}
+
+export async function authenticateUser(email: string, password: string): Promise<boolean> {
+  logger.info(`Authenticating user: ${email}`);
+  // retrieve creds
+  const userCreds: IUserCredentials | null = await findUserByEmail(email);
+  // validate password
+  if (!userCreds) {
+    logger.warn(`No user credentials found for email:${email}`);
+    return false;
+  }
+  const isValidated: boolean = await bcrypt.compare(password, userCreds.password);
+  if (!isValidated) {
+    logger.warn(`Invalid password for ${email}`);
+    throw new Error(`Invalid password for ${email}`);
+  }
+  return isValidated;
+}
+
+export async function validatePassword(userCreds: IUserCredentials, password: string): Promise<boolean> {
+  logger.info('Validating password.');
+  return bcrypt.compare(password, userCreds.password);
 }
