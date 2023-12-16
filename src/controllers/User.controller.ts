@@ -8,7 +8,7 @@ import { Contact } from '../interfaces/Contact.interface';
 import { Address } from '../interfaces/Address.interface';
 import { IServiceResponse } from '../interfaces/ServiceResponse.interface';
 import { ServiceStatusEnum } from '../enums/ServiceStatus.enum';
-
+import authorizeToken from '../middleware/authorizeToken';
 export class UserController {
   public router: Router;
   private userService: UserService;
@@ -23,10 +23,11 @@ export class UserController {
     this.router.post('/create', this.createUser);
     this.router.post('/verify/:userId', this.verifyUser);
     this.router.post('/login', this.loginUser);
-    this.router.get('/get/:userId', this.getUser);
-    this.router.patch('/edit/contact/:userId', this.editUserContact);
-    this.router.patch('/edit/address/:userId', this.editUserAddress);
-    this.router.delete('/delete/:userId', this.deleteUser);
+    this.router.post('/logout', authorizeToken, this.logoutUser);
+    this.router.get('/get/:userId', authorizeToken, this.getUser);
+    this.router.patch('/edit/contact/:userId', authorizeToken, this.editUserContact);
+    this.router.patch('/edit/address/:userId', authorizeToken, this.editUserAddress);
+    this.router.delete('/delete/:userId', authorizeToken, this.deleteUser);
   }
 
   private createUser = async (req: Request, res: Response): Promise<Response<IServiceResponse>> => {
@@ -145,6 +146,24 @@ export class UserController {
       return res.status(ApiResponseStatus.SUCCESS).json(serviceResponse);
     } catch (error: any) {
       logger.error('Error Logging in user: ', error.message);
+      res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
+    }
+    return res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Something went wrong' });
+  };
+
+  private logoutUser = async (req: Request, res: Response): Promise<Response<IServiceResponse>> => {
+    try {
+      logger.info('Request received to logout user.');
+      const userId = req.params.userId;
+      res.cookie('token', '');
+      logger.info(`userId: ${userId} logged out.`);
+      return res.status(ApiResponseStatus.SUCCESS).json({ message: 'User logged out successfully' });
+
+      // const serviceResponse = this.userService.logoutUser(userId);
+      // code here
+      // const token = req.header['Authorization']?.split(' ')[1];
+    } catch (error: any) {
+      logger.error('Error logging out the user: ', error.message);
       res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
     }
     return res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Something went wrong' });
