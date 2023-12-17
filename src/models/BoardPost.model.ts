@@ -1,5 +1,5 @@
-import { generateId } from '../middleware/generateUserId.middleware';
 import { Constants } from '../util/constants';
+import { generatePostId } from '../middleware/IdGenerator.middleware';
 
 export class BoardPost {
   boardPostId: string;
@@ -26,7 +26,7 @@ export class BoardPost {
   }
 
   // generator method
-  async generateNewBoardPost(
+  public static async generateNewBoardPost(
     userId: string,
     title: string,
     description: string,
@@ -34,7 +34,7 @@ export class BoardPost {
     tags: Tag[]
   ): Promise<BoardPost> {
     // populate boardPost ID
-    const boardPostId: string = await generateId(Constants.BOARD_POST_ID);
+    const boardPostId: string = await generatePostId(Constants.BP);
     return new BoardPost(boardPostId, userId, title, description, estimatedPrice, tags);
   }
 }

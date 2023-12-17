@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
-import { IBoardPost } from '../interfaces/BoardPost.interface';
-import { Tag } from '../models/BoardPost.model';
+import { IBoardPost } from '../../interfaces/BoardPost.interface';
+import { Tag } from '../../models/BoardPost.model';
 
 const boardPostSchema: Schema = new Schema({
   boardPostId: { type: String, required: true, unique: true },

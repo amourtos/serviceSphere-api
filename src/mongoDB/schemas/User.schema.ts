@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
-import { IUser } from '../interfaces/User.interface';
-import { UserType } from '../enums/UserType.enum';
+import { IUser } from '../../interfaces/User.interface';
+import { UserType } from '../../enums/UserType.enum';
 
 const userSchema: Schema<IUser> = new Schema({
   userId: { type: String, required: true },

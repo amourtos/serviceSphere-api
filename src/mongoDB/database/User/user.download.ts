@@ -1,6 +1,8 @@
-import { User } from '../../models/User.model';
-import { logger } from '../../config/logger';
+import { User } from '../../../models/User.model';
+import { logger } from '../../../config/logger';
 import { UserModel } from '../../schemas/User.schema';
+import { UserType } from '../../../enums/UserType.enum';
+import mongoose, { AnyObject } from 'mongoose';
 
 export async function getUserById(userId: string): Promise<User | null> {
   let user: User | null = null;
@@ -40,3 +42,10 @@ export async function getUserByEmail(email: string): Promise<User | null> {
   logger.warn(`No user found with email:${email}`);
   return user;
 }
+
+// export async function getAllUsersByUserType(userType: UserType): Promise<Document[]> {
+//   const collection = mongoose.connection.collection('users');
+//   const filter = { userType: userType };
+//   // Find the document with the largest globalId for the given sourceId
+//   return await collection.find({ userType: userType });
+// }

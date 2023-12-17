@@ -1,5 +1,5 @@
 import { VerificationCodeModel } from '../../schemas/VerificationCodes.schema';
-import { logger } from '../../config/logger';
+import { logger } from '../../../config/logger';
 
 export async function validateVerificationCode(userId: string, verificationCode: string): Promise<boolean> {
   try {

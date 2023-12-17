@@ -1,6 +1,6 @@
-import { logger } from '../../config/logger';
+import { logger } from '../../../config/logger';
 import { UserCredentialsModel } from '../../schemas/UserCredentials.schema';
-import { IUserCredentials } from '../../interfaces/UserCredentials.interface';
+import { IUserCredentials } from '../../../interfaces/UserCredentials.interface';
 
 export async function saveUserCredentials(userCredentials: IUserCredentials): Promise<IUserCredentials> {
   try {

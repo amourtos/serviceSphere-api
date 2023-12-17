@@ -7,13 +7,13 @@ import {
   saveNewUser,
   updateAddress,
   updateContact
-} from '../database/User/user.upload';
+} from '../mongoDB/database/User/user.upload';
 import { UserType } from '../enums/UserType.enum';
-import { validateVerificationCode } from '../database/VerificationCode/verificationCode.download';
+import { validateVerificationCode } from '../mongoDB/database/VerificationCode/verificationCode.download';
 import { logger } from '../config/logger';
-import { getUserById } from '../database/User/user.download';
+import { getUserById } from '../mongoDB/database/User/user.download';
 import { IUserCredentials } from '../interfaces/UserCredentials.interface';
-import { saveUserCredentials } from '../database/UserCredentials/userCredentials.upload';
+import { saveUserCredentials } from '../mongoDB/database/UserCredentials/userCredentials.upload';
 import bcrypt from 'bcryptjs';
 import { UserServiceUtil } from '../util/UserService.util';
 import { IUser } from '../interfaces/User.interface';
@@ -21,12 +21,12 @@ import { generateVerificationCode } from '../middleware/generateVerificationCode
 import { EmailOptions } from '../interfaces/EmailOptions.interface';
 import { emailGreeting } from '../config/nodemailer';
 import { sendEmail } from '../middleware/nodemailer.middleware';
-import { saveVerificationCode } from '../database/VerificationCode/verificationCode.upload';
+import { saveVerificationCode } from '../mongoDB/database/VerificationCode/verificationCode.upload';
 import { Constants } from '../util/constants';
 import { IServiceResponse } from '../interfaces/ServiceResponse.interface';
 import { ServiceUtil } from '../util/Service.util';
 import { ServiceStatusEnum } from '../enums/ServiceStatus.enum';
-import { authenticateUser } from '../database/UserCredentials/userCredentials.download';
+import { authenticateUser } from '../mongoDB/database/UserCredentials/userCredentials.download';
 
 export class UserService {
   protected userServiceUtil: UserServiceUtil = new UserServiceUtil();

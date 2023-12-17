@@ -1,4 +1,4 @@
-import { IVerificationCodes } from '../interfaces/VerificationCodes.interface';
+import { IVerificationCodes } from '../../interfaces/VerificationCodes.interface';
 import mongoose, { Schema } from 'mongoose';
 
 const verificationCodesSchema: Schema<IVerificationCodes> = new Schema({

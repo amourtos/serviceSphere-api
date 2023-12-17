@@ -1,6 +1,6 @@
-import { logger } from '../../config/logger';
+import { logger } from '../../../config/logger';
 import { UserCredentialsModel } from '../../schemas/UserCredentials.schema';
-import { IUserCredentials } from '../../interfaces/UserCredentials.interface';
+import { IUserCredentials } from '../../../interfaces/UserCredentials.interface';
 import bcrypt from 'bcryptjs';
 
 /**

@@ -1,4 +1,4 @@
-import { logger } from '../../config/logger';
+import { logger } from '../../../config/logger';
 import { VerificationCodeModel } from '../../schemas/VerificationCodes.schema';
 
 export async function saveVerificationCode(userId: string, verificationCode: string): Promise<void> {

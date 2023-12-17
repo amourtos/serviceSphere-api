@@ -1,5 +1,5 @@
 import { logger } from '../config/logger';
-import { findUserByEmail } from '../database/UserCredentials/userCredentials.download';
+import { findUserByEmail } from '../mongoDB/database/UserCredentials/userCredentials.download';
 import { IUserCredentials } from '../interfaces/UserCredentials.interface';
 import jwt from 'jsonwebtoken';
 import { secretKey } from '../config/secretKey';

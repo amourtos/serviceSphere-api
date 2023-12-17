@@ -1,4 +1,4 @@
-import { IUserCredentials } from '../interfaces/UserCredentials.interface';
+import { IUserCredentials } from '../../interfaces/UserCredentials.interface';
 import mongoose, { Schema } from 'mongoose';
 
 const userCredentialsSchema: Schema<IUserCredentials> = new Schema({
