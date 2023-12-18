@@ -1,8 +1,6 @@
 import { User } from '../../../models/User.model';
 import { logger } from '../../../config/logger';
 import { UserModel } from '../../schemas/User.schema';
-import { UserType } from '../../../enums/UserType.enum';
-import mongoose, { AnyObject } from 'mongoose';
 
 export async function getUserById(userId: string): Promise<User | null> {
   let user: User | null = null;

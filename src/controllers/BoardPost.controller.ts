@@ -44,9 +44,15 @@ export class BoardPostController {
   };
 
   private getAllPosts = async (req: Request, res: Response): Promise<Response<BoardPost[]> | undefined> => {
+    let serviceResponse: IServiceResponse;
     try {
-      logger.info('Request received.');
-      return res.status(ApiResponseStatus.SUCCESS).json({ message: 'Success' });
+      logger.info('getAllPosts Request received.');
+      serviceResponse = await this.boardPostService.getAllBoardPosts();
+      if (serviceResponse.status === ServiceStatusEnum.SERVICE_FAILURE) {
+        logger.error('Failed to fetch boardPosts');
+        return res.status(ApiResponseStatus.SERVICE_UNAVAILABLE).json(serviceResponse);
+      }
+      return res.status(ApiResponseStatus.SUCCESS).json(serviceResponse);
     } catch (error: any) {
       logger.error('Error generating token:', error.message);
       res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
