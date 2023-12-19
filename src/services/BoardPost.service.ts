@@ -1,11 +1,17 @@
 import { BoardPost, Tag } from '../models/BoardPost.model';
-import { saveNewBoardPost, editPost, deletePost } from '../mongoDB/database/BoardPost/boardPost.upload';
+import {
+  saveNewBoardPost,
+  editPost,
+  deletePost,
+  editPostWorkStatus
+} from '../mongoDB/database/BoardPost/boardPost.upload';
 import { IBoardPost } from '../interfaces/BoardPost.interface';
 import { ServiceUtil } from '../util/Service.util';
 import { ServiceStatusEnum } from '../enums/ServiceStatus.enum';
 import { IServiceResponse } from '../interfaces/ServiceResponse.interface';
 import { getAllPostByUser, getAllPosts, getPostById } from '../mongoDB/database/BoardPost/boardPost.download';
 import { logger } from '../config/logger';
+import { WorkStatus } from '../enums/WorkStatus.enum';
 
 export class BoardPostService {
   message = '';
@@ -81,9 +87,26 @@ export class BoardPostService {
       logger.error(this.message);
       return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, { updatedPost });
     }
-    this.message = `BoardPost:${updatedPost} retrieved successfully from DB`;
+    this.message = `BoardPost:${updatedPost} updated successfully from DB`;
     logger.info(`Updating boardPost:${boardPostId} --- COMPLETE`);
     return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, { updatedPost });
+  }
+
+  public async updateWorkStatus(boardPostId: string, workStatus: WorkStatus): Promise<IServiceResponse> {
+    logger.info(`Updating boardPost workStatus:${boardPostId} --- START`);
+    const isUpdated: boolean = await editPostWorkStatus(boardPostId, workStatus);
+    if (!isUpdated) {
+      this.message = `Updating boardPost:${boardPostId} --- ERROR`;
+      logger.error(this.message);
+      return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, {
+        isUpdated: isUpdated
+      });
+    }
+    this.message = `BoardPost:${isUpdated} updated workStatus successfully from DB`;
+    logger.info(`Updating boardPost workStatus:${boardPostId} --- COMPLETE`);
+    return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, {
+      isUpdated: isUpdated
+    });
   }
 
   public async deleteBoardPost(boardPostId: string): Promise<IServiceResponse> {

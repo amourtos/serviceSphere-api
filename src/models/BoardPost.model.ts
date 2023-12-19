@@ -1,6 +1,7 @@
 import { Constants } from '../util/constants';
 import { generatePostId } from '../middleware/IdGenerator.middleware';
 import { IBoardPost } from '../interfaces/BoardPost.interface';
+import { WorkStatus } from '../enums/WorkStatus.enum';
 
 export class BoardPost implements IBoardPost {
   boardPostId: string;
@@ -8,6 +9,7 @@ export class BoardPost implements IBoardPost {
   title: string;
   description: string;
   estimatedPrice: string;
+  workStatus: WorkStatus;
   tags: Tag[];
 
   constructor(
@@ -16,6 +18,7 @@ export class BoardPost implements IBoardPost {
     title: string,
     description: string,
     estimatedPrice: string,
+    workStatus: WorkStatus,
     tags: Tag[]
   ) {
     this.boardPostId = boardPostId;
@@ -23,6 +26,7 @@ export class BoardPost implements IBoardPost {
     this.title = title;
     this.description = description;
     this.estimatedPrice = estimatedPrice;
+    this.workStatus = workStatus;
     this.tags = tags;
   }
 
@@ -36,7 +40,7 @@ export class BoardPost implements IBoardPost {
   ): Promise<BoardPost> {
     // populate boardPost ID
     const boardPostId: string = await generatePostId(Constants.BP);
-    return new BoardPost(boardPostId, userId, title, description, estimatedPrice, tags);
+    return new BoardPost(boardPostId, userId, title, description, estimatedPrice, WorkStatus.WORK_AVAILABLE, tags);
   }
 }
 

@@ -2,6 +2,7 @@ import { BoardPost } from '../../../models/BoardPost.model';
 import { IBoardPost } from '../../../interfaces/BoardPost.interface';
 import { logger } from '../../../config/logger';
 import { BoardPostModel } from '../../schemas/BoardPost.schema';
+import { WorkStatus } from '../../../enums/WorkStatus.enum';
 
 export async function saveNewBoardPost(boardPost: BoardPost): Promise<IBoardPost> {
   try {
@@ -25,6 +26,20 @@ export async function editPost(boardPostId: string, boardPost: IBoardPost): Prom
     return updatedPost;
   } catch (error: any) {
     const errorMessage = `Error updating boardPost:${boardPostId} Error: ${error.message}`;
+    logger.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+}
+
+export async function editPostWorkStatus(boardPostId: string, workStatus: WorkStatus): Promise<boolean> {
+  logger.info(`Editing boardPost workStatus:${boardPostId}`);
+  try {
+    const query = { boardPostId: boardPostId };
+    const update = { workStatus: workStatus };
+    const result = await BoardPostModel.findOneAndUpdate(query, update);
+    return result !== null;
+  } catch (error: any) {
+    const errorMessage = `Error updating boardPost workStatus:${boardPostId} Error: ${error.message}`;
     logger.error(errorMessage);
     throw new Error(errorMessage);
   }

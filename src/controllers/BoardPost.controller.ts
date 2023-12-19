@@ -6,6 +6,7 @@ import authorizeToken from '../middleware/authorizeToken';
 import { BoardPostService } from '../services/BoardPost.service';
 import { IServiceResponse } from '../interfaces/ServiceResponse.interface';
 import { ServiceStatusEnum } from '../enums/ServiceStatus.enum';
+import { WorkStatus } from '../enums/WorkStatus.enum';
 
 export class BoardPostController {
   public router: Router;
@@ -22,6 +23,7 @@ export class BoardPostController {
     this.router.get('/get/all/user/:userId', authorizeToken, this.getPostsByUserId);
     this.router.post('/create', authorizeToken, this.createPost);
     this.router.patch('/edit/:boardPostId', authorizeToken, this.editPost);
+    this.router.patch('/edit/status/:boardPostId', authorizeToken, this.editPostStatus);
     this.router.delete('/delete/:boardPostId', authorizeToken, this.deletePost);
   }
 
@@ -99,6 +101,23 @@ export class BoardPostController {
       const boardPostId: string = req.params.boardPostId;
       const boardPost: BoardPost = req.body.boardPost;
       serviceResponse = await this.boardPostService.editBoardPost(boardPostId, boardPost);
+      if (serviceResponse.status === ServiceStatusEnum.SERVICE_FAILURE) {
+        logger.error('Failed to edit boardPost');
+        return res.status(ApiResponseStatus.SERVICE_UNAVAILABLE).json(serviceResponse);
+      }
+      return res.status(ApiResponseStatus.SUCCESS).json(serviceResponse);
+    } catch (error: any) {
+      logger.error('Error generating token:', error.message);
+      res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
+    }
+  };
+
+  private editPostStatus = async (req: Request, res: Response): Promise<Response<BoardPost> | undefined> => {
+    try {
+      logger.info('editPostStatus Request received.');
+      const boardPostId: string = req.params.boardPostId;
+      const workStatus: WorkStatus = req.body.workStatus;
+      const serviceResponse: IServiceResponse = await this.boardPostService.updateWorkStatus(boardPostId, workStatus);
       if (serviceResponse.status === ServiceStatusEnum.SERVICE_FAILURE) {
         logger.error('Failed to edit boardPost');
         return res.status(ApiResponseStatus.SERVICE_UNAVAILABLE).json(serviceResponse);
