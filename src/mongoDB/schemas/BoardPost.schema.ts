@@ -8,8 +8,7 @@ const boardPostSchema: Schema = new Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
   estimatedPrice: { type: String, required: true },
-  tags: [{ type: String, enum: Object.values(Tag), required: true }],
-  incrementingNumber: Number
+  tags: [{ type: String, enum: Object.values(Tag), required: true }]
 });
 
 export const BoardPostModel = mongoose.model<IBoardPost>('BoardPost', boardPostSchema);

@@ -7,8 +7,7 @@ const userSchema: Schema<IUser> = new Schema({
   userType: { type: String, required: true, enum: Object.values(UserType) },
   isVerified: { type: Boolean, required: true },
   contact: { type: Object, required: true },
-  address: { type: Object, required: true },
-  incrementingNumber: { type: Number }
+  address: { type: Object, required: true }
 });
 
 export const UserModel = mongoose.model<IUser>('User', userSchema, 'users');

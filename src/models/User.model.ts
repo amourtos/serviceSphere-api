@@ -3,8 +3,9 @@ import { Address } from '../interfaces/Address.interface';
 import { UserType } from '../enums/UserType.enum';
 import { logger } from '../config/logger';
 import { generateUserId } from '../middleware/IdGenerator.middleware';
+import { IUser } from '../interfaces/User.interface';
 
-export class User {
+export class User implements IUser {
   userId: string;
   userType: UserType;
   isVerified: boolean;

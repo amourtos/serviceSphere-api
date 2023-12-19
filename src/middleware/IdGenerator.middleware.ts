@@ -23,7 +23,7 @@ export async function generatePostId(type: string): Promise<string> {
   return `${idPrepend}_${paddedId}`;
 }
 
-async function getSortedDocs<T>(collection: Collection, userType: UserType | null): Promise<WithId<any>[]> {
+async function getSortedDocs(collection: Collection, userType: UserType | null): Promise<WithId<any>[]> {
   const docs = await collection.find().toArray();
 
   return docs.sort((a, b) => {

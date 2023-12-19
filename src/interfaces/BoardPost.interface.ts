@@ -1,11 +1,10 @@
 import { Tag } from '../models/BoardPost.model';
 
-export interface IBoardPost extends Document {
+export interface IBoardPost {
   boardPostId: string;
   userId: string;
   title: string;
   description: string;
   estimatedPrice: string;
   tags: Tag[];
-  incrementingNumber: number;
 }

@@ -1,7 +1,8 @@
 import { Constants } from '../util/constants';
 import { generatePostId } from '../middleware/IdGenerator.middleware';
+import { IBoardPost } from '../interfaces/BoardPost.interface';
 
-export class BoardPost {
+export class BoardPost implements IBoardPost {
   boardPostId: string;
   userId: string;
   title: string;
