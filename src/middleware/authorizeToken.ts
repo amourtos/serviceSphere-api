@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { logger } from '../config/logger';
 import jwt, { VerifyErrors, VerifyOptions } from 'jsonwebtoken'; // Import VerifyErrors and VerifyOptions for better type checking
-import { ApiResponseStatus } from '../models/ApiResponseStatus.model';
+import { ApiResponseStatus } from '../enums/ApiResponseStatus.enum';
 import { secretKey } from '../config/secretKey';
 
 function authorizeToken(req: Request, res: Response, next: NextFunction) {

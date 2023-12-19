@@ -1,6 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { logger } from '../config/logger';
-import { ApiResponseStatus } from '../models/ApiResponseStatus.model';
+import { ApiResponseStatus } from '../enums/ApiResponseStatus.enum';
 import { User } from '../models/User.model';
 import { UserService } from '../services/User.service';
 import { Constants } from '../util/constants';

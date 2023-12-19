@@ -1,12 +1,11 @@
 import { Request, Response, Router } from 'express';
 import { logger } from '../config/logger';
-import { ApiResponseStatus } from '../models/ApiResponseStatus.model';
+import { ApiResponseStatus } from '../enums/ApiResponseStatus.enum';
 import { BoardPost } from '../models/BoardPost.model';
 import authorizeToken from '../middleware/authorizeToken';
 import { BoardPostService } from '../services/BoardPost.service';
 import { IServiceResponse } from '../interfaces/ServiceResponse.interface';
 import { ServiceStatusEnum } from '../enums/ServiceStatus.enum';
-import { IBoardPost } from '../interfaces/BoardPost.interface';
 
 export class BoardPostController {
   public router: Router;
@@ -98,7 +97,7 @@ export class BoardPostController {
     try {
       logger.info('editPosts Request received.');
       const boardPostId: string = req.params.boardPostId;
-      const boardPost: IBoardPost = req.body.boardPost;
+      const boardPost: BoardPost = req.body.boardPost;
       serviceResponse = await this.boardPostService.editBoardPost(boardPostId, boardPost);
       if (serviceResponse.status === ServiceStatusEnum.SERVICE_FAILURE) {
         logger.error('Failed to edit boardPost');
@@ -114,7 +113,13 @@ export class BoardPostController {
   private deletePost = async (req: Request, res: Response): Promise<Response<BoardPost> | undefined> => {
     try {
       logger.info('Request received.');
-      return res.status(ApiResponseStatus.SUCCESS).json({ message: 'Success' });
+      const boardPostId: string = req.params.boardPostId;
+      const serviceResponse: IServiceResponse = await this.boardPostService.deleteBoardPost(boardPostId);
+      if (serviceResponse.status === ServiceStatusEnum.SERVICE_FAILURE) {
+        logger.error('Failed to delete boardPost');
+        return res.status(ApiResponseStatus.SERVICE_UNAVAILABLE).json(serviceResponse);
+      }
+      return res.status(ApiResponseStatus.SUCCESS).json(serviceResponse);
     } catch (error: any) {
       logger.error('Error generating token:', error.message);
       res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });

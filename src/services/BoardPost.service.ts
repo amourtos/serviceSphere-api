@@ -73,9 +73,9 @@ export class BoardPostService {
     return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, { boardPosts });
   }
 
-  public async editBoardPost(boardPostId: string, boardPost: IBoardPost): Promise<IServiceResponse> {
+  public async editBoardPost(boardPostId: string, boardPost: BoardPost): Promise<IServiceResponse> {
     logger.info(`Updating boardPost:${boardPostId} --- START`);
-    const updatedPost: IBoardPost | null = await editPost(boardPostId, boardPost);
+    const updatedPost: BoardPost | null = await editPost(boardPostId, boardPost);
     if (!updatedPost) {
       this.message = `Updating boardPost:${boardPostId} --- ERROR`;
       logger.error(this.message);
