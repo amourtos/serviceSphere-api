@@ -4,6 +4,7 @@ import { UserIdPrepends } from '../enums/UserIdPrepends.enum';
 import { IUser } from '../interfaces/User.interface';
 import { WithId } from 'mongodb';
 import { IBoardPost } from '../interfaces/BoardPost.interface';
+import { IBoardReply } from '../interfaces/BoardReply.interface';
 
 export async function generateUserId(userType: UserType): Promise<string> {
   const collection: Collection<AnyObject> = mongoose.connection.collection('users');
@@ -16,6 +17,15 @@ export async function generateUserId(userType: UserType): Promise<string> {
 
 export async function generatePostId(type: string): Promise<string> {
   const collection: Collection<AnyObject> = mongoose.connection.collection('boardposts');
+  const sortedDocs: any[] = await getSortedDocs(collection, null);
+  const incrementedId: number = calculateIncrementedId(sortedDocs);
+  const paddedId: string = String(incrementedId).padStart(10, '0');
+  const idPrepend: string = type;
+  return `${idPrepend}_${paddedId}`;
+}
+
+export async function generateReplyId(type: string): Promise<string> {
+  const collection: Collection<AnyObject> = mongoose.connection.collection('board-replies');
   const sortedDocs: any[] = await getSortedDocs(collection, null);
   const incrementedId: number = calculateIncrementedId(sortedDocs);
   const paddedId: string = String(incrementedId).padStart(10, '0');
@@ -38,8 +48,8 @@ async function getSortedDocs(collection: Collection, userType: UserType | null):
   });
 }
 
-function calculateIncrementedId(sortedDocs: IUser[] | IBoardPost[]): number {
-  const largestDoc: IUser | IBoardPost = sortedDocs[0];
+function calculateIncrementedId(sortedDocs: IUser[] | IBoardPost[] | IBoardReply[]): number {
+  const largestDoc: IUser | IBoardPost | IBoardReply = sortedDocs[0];
   if (largestDoc) {
     if (isUser(largestDoc)) {
       const largestUserId: string = largestDoc.userId;
@@ -49,6 +59,12 @@ function calculateIncrementedId(sortedDocs: IUser[] | IBoardPost[]): number {
 
     if (isBoardPost(largestDoc)) {
       const largestPostId: string = largestDoc.boardPostId;
+      const currentId: number = extractNumericPart(largestPostId);
+      return currentId + 1;
+    }
+
+    if (isBoardReply(largestDoc)) {
+      const largestPostId: string = largestDoc.boardReplyId;
       const currentId: number = extractNumericPart(largestPostId);
       return currentId + 1;
     }
@@ -74,12 +90,16 @@ function extractNumericPart(userId: string): number {
 }
 
 // helper type guard function
-function isUser(doc: IUser | IBoardPost): doc is IUser {
+function isUser(doc: IUser | IBoardPost | IBoardReply): doc is IUser {
   return (doc as IUser).userId !== undefined && (doc as IBoardPost).boardPostId === undefined;
 }
 
-function isBoardPost(doc: IUser | IBoardPost): doc is IBoardPost {
+function isBoardPost(doc: IUser | IBoardPost | IBoardReply): doc is IBoardPost {
   return (doc as IBoardPost).boardPostId !== undefined;
+}
+
+function isBoardReply(doc: IUser | IBoardReply | IBoardPost): doc is IBoardReply {
+  return (doc as IBoardReply).boardReplyId !== undefined;
 }
 
 // <--------------------- LEGACY -------------------->
