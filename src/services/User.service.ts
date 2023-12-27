@@ -17,10 +17,10 @@ import { saveUserCredentials } from '../mongoDB/database/UserCredentials/userCre
 import bcrypt from 'bcryptjs';
 import { UserServiceUtil } from '../util/UserService.util';
 import { IUser } from '../interfaces/User.interface';
-import { generateVerificationCode } from '../middleware/generateVerificationCode.middleware';
+import { generateVerificationCode } from '../modules/generateVerificationCode.module';
 import { EmailOptions } from '../interfaces/EmailOptions.interface';
 import { emailGreeting } from '../config/nodemailer';
-import { sendEmail } from '../middleware/nodemailer.middleware';
+import { sendEmail } from '../modules/nodemailer.module';
 import { saveVerificationCode } from '../mongoDB/database/VerificationCode/verificationCode.upload';
 import { Constants } from '../util/constants';
 import { IServiceResponse } from '../interfaces/ServiceResponse.interface';

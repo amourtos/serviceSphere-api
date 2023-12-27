@@ -1,5 +1,5 @@
 import { Constants } from '../util/constants';
-import { generatePostId } from '../middleware/IdGenerator.middleware';
+import { generatePostId } from '../modules/IdGenerator.module';
 import { IBoardPost } from '../interfaces/BoardPost.interface';
 import { WorkStatus } from '../enums/WorkStatus.enum';
 

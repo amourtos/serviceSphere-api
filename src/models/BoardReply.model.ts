@@ -1,5 +1,5 @@
 import { IBoardReply } from '../interfaces/BoardReply.interface';
-import { generateReplyId } from '../middleware/IdGenerator.middleware';
+import { generateReplyId } from '../modules/IdGenerator.module';
 import { Constants } from '../util/constants';
 
 export class BoardReply implements IBoardReply {

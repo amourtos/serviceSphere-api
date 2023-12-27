@@ -2,7 +2,7 @@ import { Contact } from '../interfaces/Contact.interface';
 import { Address } from '../interfaces/Address.interface';
 import { UserType } from '../enums/UserType.enum';
 import { logger } from '../config/logger';
-import { generateUserId } from '../middleware/IdGenerator.middleware';
+import { generateUserId } from '../modules/IdGenerator.module';
 import { IUser } from '../interfaces/User.interface';
 
 export class User implements IUser {
