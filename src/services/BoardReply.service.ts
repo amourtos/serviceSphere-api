@@ -5,6 +5,7 @@ import { IBoardReply } from '../interfaces/BoardReply.interface';
 import { saveNewBoardReply } from '../mongoDB/database/BoardReply/BoardReply.upload';
 import { ServiceUtil } from '../util/Service.util';
 import { ServiceStatusEnum } from '../enums/ServiceStatus.enum';
+import { getAllRepliesByPostId, getBoardReplyById } from '../mongoDB/database/BoardReply/BoardReply.download';
 
 export class BoardReplyService {
   message = '';
@@ -29,5 +30,35 @@ export class BoardReplyService {
     logger.info('Creating BoardReply --- COMPLETE');
     this.message = 'BoardReply created successfully';
     return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, { boardReply });
+  }
+
+  public async fetchBoardReplyById(boardReplyId: string): Promise<IServiceResponse> {
+    logger.info(`Fetching BoardReply:${boardReplyId} --- START`);
+    const boardReply: BoardReply | null = await getBoardReplyById(boardReplyId);
+    if (!boardReplyId) {
+      this.message = `Error fetching boardReplyById:${boardReplyId}`;
+      logger.error(`Fetching BoardReply:${boardReplyId} --- ERROR: ${this.message}`);
+      return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, { boardReply });
+    }
+    logger.info(`Fetching BoardReply:${boardReplyId} --- COMPLETE`);
+    this.message = `Fetching BoardReply by ID: success`;
+    return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, { boardReply });
+  }
+
+  public async fetchBoardRepliesByPostId(boardPostId: string): Promise<IServiceResponse> {
+    logger.info(`Fetching BoardReplies by postId:${boardPostId} --- START`);
+    const boardReplies: BoardReply[] = await getAllRepliesByPostId(boardPostId);
+    if (!boardPostId) {
+      this.message = `Error fetching boardReplies by postId:${boardPostId}`;
+      logger.error(`Fetching BoardReply:${boardPostId} --- ERROR: ${this.message}`);
+      return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, {
+        boardReply: boardReplies
+      });
+    }
+    logger.info(`Fetching BoardReply:${boardPostId} --- COMPLETE`);
+    this.message = `Fetching BoardReply by ID: success`;
+    return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, {
+      boardReply: boardReplies
+    });
   }
 }

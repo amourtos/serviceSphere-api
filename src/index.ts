@@ -5,6 +5,7 @@ import { BoardPostController } from './controllers/BoardPost.controller';
 import { UserController } from './controllers/User.controller';
 import { logger } from './config/logger';
 import cookieParser from 'cookie-parser';
+import { BoardReplyController } from './controllers/BoardReply.controller';
 
 const app: Express = express();
 const port = process.env.PORT;
@@ -23,6 +24,7 @@ app.get('/', (req: Request, res: Response) => {
 
 app.use('/board-posts', new BoardPostController().router);
 app.use('/user', new UserController().router);
+app.use('/boardReplies', new BoardReplyController().router);
 
 // listen
 app.listen(port, () => {
