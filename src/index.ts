@@ -6,15 +6,18 @@ import { UserController } from './controllers/User.controller';
 import { logger } from './config/logger';
 import cookieParser from 'cookie-parser';
 import { BoardReplyController } from './controllers/BoardReply.controller';
+import { generateSyntheticUserData, seedDatabase } from './seed-database';
+import axios from 'axios';
 
 const app: Express = express();
 const port = process.env.PORT;
 
 // Connect to MongoDB
 connectDb();
+
 // configs
 app.use(bodyParser.json());
-app.use(cookieParser());
+// app.use(cookieParser());
 
 // routes
 // test
@@ -30,3 +33,5 @@ app.use('/boardReplies', new BoardReplyController().router);
 app.listen(port, () => {
   logger.info(`Listening on ${port}`);
 });
+
+seedDatabase();

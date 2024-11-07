@@ -47,9 +47,10 @@ export class UserController {
       return res.status(ApiResponseStatus.SUCCESS).json(serviceResponse);
     } catch (error: any) {
       logger.error('Error generating User:', error.message);
-      res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
+      return res
+        .status(ApiResponseStatus.SERVER_ERROR)
+        .json({ message: 'Backend service unavailable', error: error.message });
     }
-    return res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Something went wrong' });
   };
 
   private verifyUser = async (req: Request, res: Response): Promise<Response<IServiceResponse>> => {
