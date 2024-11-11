@@ -13,6 +13,7 @@ const llm = new ChatOpenAI({
 
 const UserSchema = z.object({
   userType: z.enum(['CONTRACTOR', 'CUSTOMER']),
+  password: z.string(),
   contact: z.object({
     firstName: z.string(),
     lastName: z.string(),
@@ -32,9 +33,11 @@ const parser = StructuredOutputParser.fromZodSchema(z.array(UserSchema));
 
 export async function generateSyntheticUserData(): Promise<User[]> {
   const prompt = `You are a helpful assistant that generates User data.
-   Generate 1 fictional user records. Each record should include the following fields:
-    userType, a Contact object with firstName, lastName, email, and phone, a Address object with addressLine, city,
-     state (2 letter abbreviation in all caps, and postalCode. Ensure variety in the data and realistic values. 
+   Generate 10 fictional user records. Each record should include the following fields:
+    userType, a randomized password, a Contact object with firstName, lastName, email,
+     and phone, a Address object with addressLine, city,
+     state (2 letter abbreviation in all caps, and postalCode. 
+     Ensure variety in the data and realistic values. 
       ${parser.getFormatInstructions()}`;
   console.log('Generating synthetic user data');
 
@@ -51,8 +54,8 @@ export const seedDatabase = async () => {
       console.log(record);
       const response = await axios.post('http://localhost:3000/user/create', record);
       console.log(response.data);
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error(error.message);
     }
   }
 };

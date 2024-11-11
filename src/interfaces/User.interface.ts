@@ -1,6 +1,7 @@
 import { UserType } from '../enums/UserType.enum';
 import { Contact } from './Contact.interface';
 import { Address } from './Address.interface';
+import { IUserCredentials } from './UserCredentials.interface';
 
 export interface IUser {
   userId: string;
