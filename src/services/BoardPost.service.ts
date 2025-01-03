@@ -16,14 +16,23 @@ import { Image } from '../models/Image.model';
 import { saveNewImage } from '../mongoDB/database/Image/Image.upload';
 import googleCloudStorage from '../modules/googleCloudStorage';
 import * as fs from 'node:fs';
-import * as path from 'node:path';
-import * as os from 'node:os';
 import { ImageUtils } from '../util/image.util';
 import { IImage } from '../interfaces/Image.interface';
 
 export class BoardPostService {
   message = '';
 
+  /**
+   * Creates a new board post with the given data and images.
+   *
+   * @param userId - The ID of the user creating the post.
+   * @param title - The title of the post.
+   * @param description - The description of the post.
+   * @param estimatedPrice - The estimated price for the job.
+   * @param tags - An array of tags associated with the post.
+   * @param imageFiles - An array of image files to be uploaded.
+   * @returns A Promise that resolves to an IServiceResponse indicating success or failure.
+   */
   public async createBoardPost(
     userId: string,
     title: string,
@@ -90,6 +99,11 @@ export class BoardPostService {
     }
   }
 
+  /**
+   * Fetches all board posts from the database.
+   *
+   * @returns A Promise that resolves to an IServiceResponse containing an array of BoardPost objects.
+   */
   public async fetchAllBoardPosts(): Promise<IServiceResponse> {
     logger.info('Fetching BoardPosts --- START');
 
@@ -104,6 +118,12 @@ export class BoardPostService {
     return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, { posts });
   }
 
+  /**
+   * Fetches a board post by its ID.
+   *
+   * @param boardPostId - The ID of the board post to fetch.
+   * @returns A Promise that resolves to an IServiceResponse containing the BoardPost object.
+   */
   public async fetchBoardPostById(boardPostId: string): Promise<IServiceResponse> {
     logger.info(`Fetching boardPost:${boardPostId} --- START`);
     const boardPost: IBoardPost | null = await getPostById(boardPostId);
@@ -117,6 +137,12 @@ export class BoardPostService {
     return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, { boardPost });
   }
 
+  /**
+   * Fetches all board posts created by a specific user.
+   *
+   * @param userId - The ID of the user.
+   * @returns A Promise that resolves to an IServiceResponse containing an array of BoardPost objects.
+   */
   public async fetchAllPostByUser(userId: string): Promise<IServiceResponse> {
     logger.info(`Fetching boardPosts:${userId} --- START`);
     const boardPosts: IBoardPost[] = await getAllPostByUser(userId);
@@ -130,6 +156,13 @@ export class BoardPostService {
     return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, { boardPosts });
   }
 
+  /**
+   * Edits an existing board post.
+   *
+   * @param boardPostId - The ID of the board post to edit.
+   * @param boardPost - The updated BoardPost object.
+   * @returns A Promise that resolves to an IServiceResponse indicating success or failure.
+   */
   public async editBoardPost(boardPostId: string, boardPost: BoardPost): Promise<IServiceResponse> {
     logger.info(`Updating boardPost:${boardPostId} --- START`);
     const updatedPost: BoardPost | null = await editPost(boardPostId, boardPost);
@@ -143,6 +176,13 @@ export class BoardPostService {
     return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, { updatedPost });
   }
 
+  /**
+   * Updates the work status of a board post.
+   *
+   * @param boardPostId - The ID of the board post.
+   * @param workStatus - The new work status.
+   * @returns A Promise that resolves to an IServiceResponse indicating success or failure.
+   */
   public async updateWorkStatus(boardPostId: string, workStatus: WorkStatus): Promise<IServiceResponse> {
     logger.info(`Updating boardPost workStatus:${boardPostId} --- START`);
     const isUpdated: boolean = await editPostWorkStatus(boardPostId, workStatus);
@@ -160,6 +200,12 @@ export class BoardPostService {
     });
   }
 
+  /**
+   * Deletes a board post.
+   *
+   * @param boardPostId - The ID of the board post to delete.
+   * @returns A Promise that resolves to an IServiceResponse indicating success or failure.
+   */
   public async deleteBoardPost(boardPostId: string): Promise<IServiceResponse> {
     logger.info(`Deleting boardPost:${boardPostId} --- START`);
     const isDeleted: boolean = await deletePost(boardPostId);
