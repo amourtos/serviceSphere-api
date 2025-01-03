@@ -48,13 +48,13 @@ export class BoardPostService {
         const tempDir = ImageUtils.createTemporaryDirectory(boardPost.boardPostId);
         // 2. Ensure the directory exists
         if (!fs.existsSync(tempDir)) {
-          fs.mkdirSync(tempDir, { recursive: true }); // Create the directory recursively
+          fs.mkdirSync(tempDir, { recursive: true });
         }
         for (const imageFile of imageFiles) {
           const image: Image = await Image.generateNewImage(userId, boardPost.boardPostId, imageFile.originalname);
           imageFile.originalname = image.fileName;
           boardPost.imageIds.push(image.imageId);
-          ImageUtils.saveImageToTemporaryDirectory(tempDir, imageFile);
+          await ImageUtils.saveImageToTemporaryDirectory(tempDir, imageFile);
           const savedImage: IImage = await saveNewImage(image);
           if (!savedImage) {
             if (!savedImage) {
@@ -75,6 +75,8 @@ export class BoardPostService {
         }
         // save images and temp directory to google cloud bucket
         await googleCloudStorage.uploadDirectory(tempDir).then();
+        // *** Delete the temporary directory ***
+        fs.rmSync(tempDir, { recursive: true, force: true });
       }
       logger.info('Creating BoardPost --- COMPLETE');
       this.message = 'boardPost created successfully.';

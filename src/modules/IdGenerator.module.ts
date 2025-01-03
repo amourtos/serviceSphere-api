@@ -14,7 +14,7 @@ export async function generateId(mongoIdPrepend: MongoDocumentPrepends, collecti
     incrementedId = extractNumericPart(largestId) + 1;
   }
   const paddedId: string = String(incrementedId).padStart(10, '0');
-  return `${mongoIdPrepend}_${paddedId}`;
+  return `${mongoIdPrepend}${paddedId}`;
 }
 
 function getIdField(prepend: MongoDocumentPrepends): string {
