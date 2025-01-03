@@ -9,4 +9,5 @@ export interface IBoardPost {
   estimatedPrice: string;
   workStatus: WorkStatus;
   tags: Tag[];
+  imageIds: string[];
 }

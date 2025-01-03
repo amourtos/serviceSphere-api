@@ -1,6 +1,8 @@
 import { IBoardReply } from '../interfaces/BoardReply.interface';
-import { generateReplyId } from '../modules/IdGenerator.module';
+import { generateId } from '../modules/IdGenerator.module';
 import { Constants } from '../util/constants';
+import { MongoCollections } from '../enums/MongoCollections.enum';
+import { MongoDocumentPrepends } from '../enums/MongoIdPrepends.enum';
 
 export class BoardReply implements IBoardReply {
   boardReplyId: string;
@@ -24,7 +26,7 @@ export class BoardReply implements IBoardReply {
     comment: string,
     price: string
   ): Promise<BoardReply> {
-    const boardReplyId: string = await generateReplyId(Constants.BR);
+    const boardReplyId: string = await generateId(MongoDocumentPrepends.BOARD_REPLY, MongoCollections.BOARD_REPLIES);
     return new BoardReply(boardReplyId, userId, boardPostId, comment, price);
   }
 }

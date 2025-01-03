@@ -10,7 +10,8 @@ const boardPostSchema: Schema = new Schema({
   description: { type: String, required: true },
   estimatedPrice: { type: String, required: true },
   workStatus: { type: String, enum: Object.values(WorkStatus) },
-  tags: [{ type: String, enum: Object.values(Tag), required: true }]
+  tags: [{ type: String, enum: Object.values(Tag), required: true }],
+  imageIds: [{ type: String, ref: 'Image' }]
 });
 
 export const BoardPostModel = mongoose.model<IBoardPost>('BoardPost', boardPostSchema);

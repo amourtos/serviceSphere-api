@@ -9,6 +9,7 @@ import { Address } from '../interfaces/Address.interface';
 import { IServiceResponse } from '../interfaces/ServiceResponse.interface';
 import { ServiceStatusEnum } from '../enums/ServiceStatus.enum';
 import authorizeToken from '../middleware/authorizeToken';
+
 export class UserController {
   public router: Router;
   private userService: UserService;
@@ -47,7 +48,10 @@ export class UserController {
       return res.status(ApiResponseStatus.SUCCESS).json(serviceResponse);
     } catch (error: any) {
       logger.error('Error generating User:', error.message);
-      res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
+      res.status(ApiResponseStatus.SERVER_ERROR).json({
+        message: 'Backend service unavailable',
+        error: error.message
+      });
     }
     return res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Something went wrong' });
   };
@@ -62,7 +66,10 @@ export class UserController {
       return res.status(ApiResponseStatus.SUCCESS).json(response);
     } catch (error: any) {
       logger.error(`userId: ${req.params.userId} | error request received`, error.message);
-      res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
+      res.status(ApiResponseStatus.SERVER_ERROR).json({
+        message: 'Backend service unavailable',
+        error: error.message
+      });
     }
     return res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Something went wrong' });
   };
@@ -84,7 +91,10 @@ export class UserController {
       return res.status(ApiResponseStatus.SUCCESS).json(response);
     } catch (error: any) {
       logger.error('Error generating token:', error.message);
-      res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
+      res.status(ApiResponseStatus.SERVER_ERROR).json({
+        message: 'Backend service unavailable',
+        error: error.message
+      });
     }
     return res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Something went wrong' });
   };
@@ -102,7 +112,10 @@ export class UserController {
       return res.status(ApiResponseStatus.SUCCESS).json(updatedUser);
     } catch (error: any) {
       logger.error('Error updating user contact:', error.message);
-      res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
+      res.status(ApiResponseStatus.SERVER_ERROR).json({
+        message: 'Backend service unavailable',
+        error: error.message
+      });
     }
     return res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Something went wrong' });
   };
@@ -118,7 +131,10 @@ export class UserController {
       return res.status(ApiResponseStatus.SUCCESS).json(updatedUser);
     } catch (error: any) {
       logger.error('Error updating user address:', error.message);
-      res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
+      res.status(ApiResponseStatus.SERVER_ERROR).json({
+        message: 'Backend service unavailable',
+        error: error.message
+      });
     }
     return res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Something went wrong' });
   };
@@ -131,7 +147,10 @@ export class UserController {
       return res.status(ApiResponseStatus.SUCCESS).json(serviceResponse);
     } catch (error: any) {
       logger.error('Error deleting user: ', error.message);
-      res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
+      res.status(ApiResponseStatus.SERVER_ERROR).json({
+        message: 'Backend service unavailable',
+        error: error.message
+      });
     }
     return res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Something went wrong' });
   };
@@ -146,7 +165,10 @@ export class UserController {
       return res.status(ApiResponseStatus.SUCCESS).json(serviceResponse);
     } catch (error: any) {
       logger.error('Error Logging in user: ', error.message);
-      res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
+      res.status(ApiResponseStatus.SERVER_ERROR).json({
+        message: 'Backend service unavailable',
+        error: error.message
+      });
     }
     return res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Something went wrong' });
   };
@@ -164,7 +186,10 @@ export class UserController {
       // const token = req.header['Authorization']?.split(' ')[1];
     } catch (error: any) {
       logger.error('Error logging out the user: ', error.message);
-      res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
+      res.status(ApiResponseStatus.SERVER_ERROR).json({
+        message: 'Backend service unavailable',
+        error: error.message
+      });
     }
     return res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Something went wrong' });
   };

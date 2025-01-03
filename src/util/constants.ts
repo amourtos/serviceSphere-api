@@ -5,7 +5,4 @@ export class Constants {
   public static FAILED = 'FAILED';
   public static SUCCESS = 'SUCCESS';
   public static NOT_FOUND = 'NOT_FOUND';
-
-  public static BP = 'BP';
-  public static BR = 'BR';
 }

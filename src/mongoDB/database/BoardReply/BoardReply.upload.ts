@@ -1,7 +1,6 @@
 import { BoardReply } from '../../../models/BoardReply.model';
 import { IBoardReply } from '../../../interfaces/BoardReply.interface';
 import { logger } from '../../../config/logger';
-import { UserModel } from '../../schemas/User.schema';
 import { BoardReplyModel } from '../../schemas/BoardReply.schema';
 
 export async function saveNewBoardReply(boardReply: BoardReply): Promise<IBoardReply> {

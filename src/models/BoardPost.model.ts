@@ -1,7 +1,9 @@
 import { Constants } from '../util/constants';
-import { generatePostId } from '../modules/IdGenerator.module';
+import { generateId } from '../modules/IdGenerator.module';
 import { IBoardPost } from '../interfaces/BoardPost.interface';
 import { WorkStatus } from '../enums/WorkStatus.enum';
+import { MongoCollections } from '../enums/MongoCollections.enum';
+import { MongoDocumentPrepends } from '../enums/MongoIdPrepends.enum';
 
 export class BoardPost implements IBoardPost {
   boardPostId: string;
@@ -11,6 +13,7 @@ export class BoardPost implements IBoardPost {
   estimatedPrice: string;
   workStatus: WorkStatus;
   tags: Tag[];
+  imageIds: string[];
 
   constructor(
     boardPostId: string,
@@ -28,6 +31,7 @@ export class BoardPost implements IBoardPost {
     this.estimatedPrice = estimatedPrice;
     this.workStatus = workStatus;
     this.tags = tags;
+    this.imageIds = [];
   }
 
   // generator method
@@ -39,7 +43,7 @@ export class BoardPost implements IBoardPost {
     tags: Tag[]
   ): Promise<BoardPost> {
     // populate boardPost ID
-    const boardPostId: string = await generatePostId(Constants.BP);
+    const boardPostId: string = await generateId(MongoDocumentPrepends.BOARD_POST, MongoCollections.BOARDPOSTS);
     return new BoardPost(boardPostId, userId, title, description, estimatedPrice, WorkStatus.WORK_AVAILABLE, tags);
   }
 }

@@ -31,6 +31,7 @@ import { authenticateUser } from '../mongoDB/database/UserCredentials/userCreden
 export class UserService {
   protected userServiceUtil: UserServiceUtil = new UserServiceUtil();
   message = '';
+
   /**
    * Create new User
    * <p>Step 1: generate new user object </p>

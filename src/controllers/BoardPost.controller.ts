@@ -7,6 +7,7 @@ import { BoardPostService } from '../services/BoardPost.service';
 import { IServiceResponse } from '../interfaces/ServiceResponse.interface';
 import { ServiceStatusEnum } from '../enums/ServiceStatus.enum';
 import { WorkStatus } from '../enums/WorkStatus.enum';
+import { imageUpload } from '../middleware/imageUploadMiddleware';
 
 export class BoardPostController {
   public router: Router;
@@ -21,8 +22,8 @@ export class BoardPostController {
     this.router.get('/get/all', authorizeToken, this.getAllPosts);
     this.router.get(`/get/:boardPostId`, authorizeToken, this.getPostById);
     this.router.get('/get/all/user/:userId', authorizeToken, this.getPostsByUserId);
-    this.router.post('/create', authorizeToken, this.createPost);
-    this.router.patch('/edit/:boardPostId', authorizeToken, this.editPost);
+    this.router.post('/create', authorizeToken, imageUpload, this.createPost);
+    this.router.patch('/edit/:boardPostId', authorizeToken, imageUpload, this.editPost);
     this.router.patch('/edit/status/:boardPostId', authorizeToken, this.editPostStatus);
     this.router.delete('/delete/:boardPostId', authorizeToken, this.deletePost);
   }
@@ -32,7 +33,15 @@ export class BoardPostController {
     try {
       logger.info('CreatePost request received.');
       const { userId, title, description, estimatedPrice, tags } = req.body;
-      serviceResponse = await this.boardPostService.createBoardPost(userId, title, description, estimatedPrice, tags);
+      const imageFiles = req.files as Express.Multer.File[];
+      serviceResponse = await this.boardPostService.createBoardPost(
+        userId,
+        title,
+        description,
+        estimatedPrice,
+        tags,
+        imageFiles
+      );
       if (serviceResponse.status === ServiceStatusEnum.SERVICE_FAILURE) {
         logger.error('Board Post failed to create');
         return res.status(ApiResponseStatus.SERVICE_UNAVAILABLE).json(serviceResponse);

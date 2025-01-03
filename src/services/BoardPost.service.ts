@@ -1,9 +1,9 @@
 import { BoardPost, Tag } from '../models/BoardPost.model';
 import {
-  saveNewBoardPost,
-  editPost,
   deletePost,
-  editPostWorkStatus
+  editPost,
+  editPostWorkStatus,
+  saveNewBoardPost
 } from '../mongoDB/database/BoardPost/boardPost.upload';
 import { IBoardPost } from '../interfaces/BoardPost.interface';
 import { ServiceUtil } from '../util/Service.util';
@@ -12,6 +12,14 @@ import { IServiceResponse } from '../interfaces/ServiceResponse.interface';
 import { getAllPostByUser, getAllPosts, getPostById } from '../mongoDB/database/BoardPost/boardPost.download';
 import { logger } from '../config/logger';
 import { WorkStatus } from '../enums/WorkStatus.enum';
+import { Image } from '../models/Image.model';
+import { saveNewImage } from '../mongoDB/database/Image/Image.upload';
+import googleCloudStorage from '../modules/googleCloudStorage';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import * as os from 'node:os';
+import { ImageUtils } from '../util/image.util';
+import { IImage } from '../interfaces/Image.interface';
 
 export class BoardPostService {
   message = '';
@@ -21,22 +29,63 @@ export class BoardPostService {
     title: string,
     description: string,
     estimatedPrice: string,
-    tags: Tag[]
+    tags: Tag[],
+    imageFiles: Express.Multer.File[]
   ): Promise<IServiceResponse> {
     logger.info('Creating BoardPost --- START');
-    // 1. generate new board post
-    const boardPost: BoardPost = await BoardPost.generateNewBoardPost(userId, title, description, estimatedPrice, tags);
-    // 2. save boardPost to DB
-    const savedBoardPost: IBoardPost = await saveNewBoardPost(boardPost);
-    if (!savedBoardPost) {
-      this.message = `Error saving new post to DB: ${boardPost.boardPostId}`;
-      logger.info(`Creating BoardPost --- ERROR: ${this.message}`);
-      return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, { boardPost });
-    }
 
-    logger.info('Creating BoardPost --- COMPLETE');
-    this.message = 'boardPost created successfully.';
-    return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, { boardPost });
+    try {
+      // 1. Generate new board post
+      const boardPost: BoardPost = await BoardPost.generateNewBoardPost(
+        userId,
+        title,
+        description,
+        estimatedPrice,
+        tags
+      );
+      // 3. Generate image files and get Ids
+      if (imageFiles.length > 0) {
+        const tempDir = ImageUtils.createTemporaryDirectory(boardPost.boardPostId);
+        // 2. Ensure the directory exists
+        if (!fs.existsSync(tempDir)) {
+          fs.mkdirSync(tempDir, { recursive: true }); // Create the directory recursively
+        }
+        for (const imageFile of imageFiles) {
+          const image: Image = await Image.generateNewImage(userId, boardPost.boardPostId, imageFile.originalname);
+          imageFile.originalname = image.fileName;
+          boardPost.imageIds.push(image.imageId);
+          ImageUtils.saveImageToTemporaryDirectory(tempDir, imageFile);
+          const savedImage: IImage = await saveNewImage(image);
+          if (!savedImage) {
+            if (!savedImage) {
+              this.message = `Error saving new image to DB: ${imageFile}`;
+              logger.info(`Creating BoardPost images --- ERROR: ${this.message}`);
+              return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, {
+                boardPost
+              });
+            }
+          }
+        }
+        // 2. Save boardPost to DB
+        const savedBoardPost: IBoardPost = await saveNewBoardPost(boardPost);
+        if (!savedBoardPost) {
+          this.message = `Error saving new post to DB: ${boardPost.boardPostId}`;
+          logger.info(`Creating BoardPost --- ERROR: ${this.message}`);
+          return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, { boardPost });
+        }
+        // save images and temp directory to google cloud bucket
+        await googleCloudStorage.uploadDirectory(tempDir).then();
+      }
+      logger.info('Creating BoardPost --- COMPLETE');
+      this.message = 'boardPost created successfully.';
+      return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, { boardPost });
+    } catch (error: any) {
+      logger.error('Error creating board post:', error.message);
+      this.message = 'Error creating board post.';
+      return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, {
+        error: error.message
+      });
+    }
   }
 
   public async fetchAllBoardPosts(): Promise<IServiceResponse> {
