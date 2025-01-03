@@ -51,7 +51,7 @@ export async function authenticateUser(email: string, password: string): Promise
   // validate password
   if (!userCreds) {
     logger.warn(`No user credentials found for email:${email}`);
-    return false;
+    throw new Error(`No user found for email: ${email}`);
   }
   const isValidated: boolean = await bcrypt.compare(password, userCreds.password);
   if (!isValidated) {

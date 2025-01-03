@@ -187,13 +187,11 @@ export class UserService {
     logger.info(`Logging in user: ${userId} --- START`);
     try {
       const isAuthenticated: boolean = await authenticateUser(email, password);
-
       if (isAuthenticated) {
         this.message = 'Authentication successful.';
         logger.info(this.message);
         const accessToken: string = this.userServiceUtil.generateAccessToken(userId);
         // generate a session and manage here
-
         return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, {
           accessToken: accessToken
         });
