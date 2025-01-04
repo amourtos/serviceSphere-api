@@ -1,6 +1,7 @@
 import { User } from '../../../models/User.model';
 import { logger } from '../../../config/logger';
 import { UserModel } from '../../schemas/User.schema';
+import { UserType } from '../../../enums/UserType.enum';
 
 export async function getUserById(userId: string): Promise<User | null> {
   let user: User | null = null;
@@ -41,9 +42,16 @@ export async function getUserByEmail(email: string): Promise<User | null> {
   return user;
 }
 
-// export async function getAllUsersByUserType(userType: UserType): Promise<Document[]> {
-//   const collection = mongoose.connection.collection('users');
-//   const filter = { userType: userType };
-//   // Find the document with the largest globalId for the given sourceId
-//   return await collection.find({ userType: userType });
-// }
+export async function getAllUsersByType(userType: UserType): Promise<User[]> {
+  logger.info(`Retrieving users by type: ${userType}`);
+  const users: User[] = [];
+  try {
+    const filter = { userType: userType };
+    const result = await UserModel.find(filter);
+    users.push(...result);
+  } catch (error: any) {
+    logger.error(`Error retrieving users by type: ${error}`);
+    throw new Error(`Failed to retrieve users by ${userType} | Error: ${error.message}.`);
+  }
+  return users;
+}

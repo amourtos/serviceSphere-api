@@ -6,6 +6,7 @@ import { UserController } from './controllers/User.controller';
 import { logger } from './config/logger';
 import cookieParser from 'cookie-parser';
 import { BoardReplyController } from './controllers/BoardReply.controller';
+import { seedBoardPostDatabase } from './modules/seed-database';
 
 const app: Express = express();
 const port = process.env.PORT;
@@ -30,3 +31,6 @@ app.use('/boardReplies', new BoardReplyController().router);
 app.listen(port, () => {
   logger.info(`Listening on ${port}`);
 });
+logger.info('Adding synthetic user data to Database');
+// seedUserDatabase();
+seedBoardPostDatabase();

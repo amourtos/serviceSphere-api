@@ -53,7 +53,7 @@ export class BoardPostService {
         tags
       );
       // 3. Generate image files and get Ids
-      if (imageFiles.length > 0) {
+      if (imageFiles && imageFiles.length > 0) {
         const tempDir = ImageUtils.createTemporaryDirectory(boardPost.boardPostId);
         // 2. Ensure the directory exists
         if (!fs.existsSync(tempDir)) {
@@ -62,7 +62,7 @@ export class BoardPostService {
         for (const imageFile of imageFiles) {
           const image: Image = await Image.generateNewImage(userId, boardPost.boardPostId, imageFile.originalname);
           imageFile.originalname = image.fileName;
-          boardPost.imageIds.push(image.imageId);
+          boardPost.imageIds.push(...image.imageId);
           await ImageUtils.saveImageToTemporaryDirectory(tempDir, imageFile);
           const savedImage: IImage = await saveNewImage(image);
           if (!savedImage) {
@@ -75,17 +75,17 @@ export class BoardPostService {
             }
           }
         }
-        // 2. Save boardPost to DB
-        const savedBoardPost: IBoardPost = await saveNewBoardPost(boardPost);
-        if (!savedBoardPost) {
-          this.message = `Error saving new post to DB: ${boardPost.boardPostId}`;
-          logger.info(`Creating BoardPost --- ERROR: ${this.message}`);
-          return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, { boardPost });
-        }
         // save images and temp directory to google cloud bucket
         await googleCloudStorage.uploadDirectory(tempDir).then();
         // *** Delete the temporary directory ***
         fs.rmSync(tempDir, { recursive: true, force: true });
+      }
+      // 2. Save boardPost to DB
+      const savedBoardPost: IBoardPost = await saveNewBoardPost(boardPost);
+      if (!savedBoardPost) {
+        this.message = `Error saving new post to DB: ${boardPost.boardPostId}`;
+        logger.info(`Creating BoardPost --- ERROR: ${this.message}`);
+        return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, { boardPost });
       }
       logger.info('Creating BoardPost --- COMPLETE');
       this.message = 'boardPost created successfully.';
