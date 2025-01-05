@@ -14,6 +14,7 @@ export class BoardReplyController {
   constructor() {
     this.router = Router();
     this.boardReplyService = new BoardReplyService();
+    this.initRoutes();
   }
 
   private initRoutes(): void {
@@ -22,7 +23,7 @@ export class BoardReplyController {
     this.router.get('/get/:boardReplyId', authorizeToken, this.fetchByBoardReplyId);
   }
 
-  private async createBoardReply(req: Request, res: Response): Promise<Response<BoardReply> | undefined> {
+  private createBoardReply = async (req: Request, res: Response): Promise<Response<BoardReply> | undefined> => {
     let serviceResponse: IServiceResponse;
     try {
       logger.info('Create BoardReply request received.');
@@ -38,7 +39,7 @@ export class BoardReplyController {
       logger.error('Error creating board post:', error.message);
       res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
     }
-  }
+  };
 
   private fetchByBoardPostId = async (req: Request, res: Response): Promise<Response<BoardReply[]> | undefined> => {
     let serviceResponse: IServiceResponse;
@@ -58,7 +59,7 @@ export class BoardReplyController {
     }
   };
 
-  private async fetchByBoardReplyId(req: Request, res: Response): Promise<Response<BoardReply> | undefined> {
+  private fetchByBoardReplyId = async (req: Request, res: Response): Promise<Response<BoardReply> | undefined> => {
     let serviceResponse: IServiceResponse;
     try {
       logger.info('fetching BoardReply by PostId.');
@@ -74,5 +75,5 @@ export class BoardReplyController {
       logger.error('Error fetching BoardReply:', error.message);
       res.status(ApiResponseStatus.SERVER_ERROR).json({ message: 'Backend service unavailable', error: error.message });
     }
-  }
+  };
 }

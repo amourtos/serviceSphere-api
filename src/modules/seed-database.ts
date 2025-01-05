@@ -5,14 +5,14 @@ import connectDb from '../config/mongo';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
 import { WorkStatus } from '../enums/WorkStatus.enum';
-import { Tag } from '../models/BoardPost.model';
+import { BoardPost, Tag } from '../models/BoardPost.model';
 import { getAllUsersByType } from '../mongoDB/database/User/user.download';
 import { UserType } from '../enums/UserType.enum';
 import { User } from '../models/User.model';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import File from 'form-data';
 import FormData from 'form-data';
+import { getAllPosts } from '../mongoDB/database/BoardPost/boardPost.download';
 
 const client = connectDb();
 dotenv.config();
@@ -20,7 +20,6 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY ? process.env.GO
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
 const BoardReplyRequestSchema = z.object({
-  boardReplyId: z.string(),
   userId: z.string(),
   boardPostId: z.string(),
   comment: z.string(),
@@ -101,15 +100,16 @@ export async function generateSyntheticBoardReplyData(
   boardPosts: ZBoardPost[]
 ): Promise<ZBoardReplyRequestSchema[]> {
   const prompt = `You are a helpful assistant that generates replies to board posts.
-  Generate 1  fictional board reply record.
+  Generate a fictional board reply record to each ${boardPosts}.
   The userId property should be any of the following: 
   ${users
     .filter((user) => user.userType === UserType.CONTRACTOR)
     .map((user) => user.userId)
     .join(', ')}
-  The boardPostId should be any of the following: ${boardPosts.map((boardPostId) => boardPostId).join(', ')}
+  The boardPostId should be any of the following: ${boardPosts.map((boardPost) => boardPost.boardPostId).join(', ')}
   The content of the board reply should reflect a relevant conversation between a customer looking to hire a contractor 
   and a contractor bidding on the work.
+  ${boardReplyRequestParser.getFormatInstructions()}
   `;
   const response = await model.generateContent(prompt);
   return boardReplyRequestParser.parse(response.response.text());
@@ -153,6 +153,34 @@ export async function generateSyntheticBoardPostData(users: ZUserDocumentSchema[
 }
 
 // ==== main method declaration =====
+// ==== seed board replies data ====
+export const seedBoardReplyData = async () => {
+  console.log('Seeding board reply data');
+  const contractors: User[] = await getAllUsersByType(UserType.CONTRACTOR);
+  const boardPosts: BoardPost[] = await getAllPosts();
+  const zUserRecords: ZUserDocumentSchema[] = contractors.map((user: User) => UserDocumentSchema.parse(user));
+  const zBoardPosts: ZBoardPost[] = boardPosts.map((boardPost: BoardPost) => BoardPostSchema.parse(boardPost));
+  const records = await generateSyntheticBoardReplyData(zUserRecords, zBoardPosts);
+  for (const record of records) {
+    try {
+      console.log(record);
+      const formData = new FormData();
+      formData.append('userId', record.userId);
+      formData.append('boardPostId', record.boardPostId);
+      formData.append('comment', record.comment);
+      formData.append('price', record.price);
+      const response = await axios.post('http://localhost:3000/boardReplies/create', record, {
+        headers: {
+          // 'Content-Type': 'multipart/form-data',
+          Authorization: `token=ADmin12!@`
+        }
+      });
+      console.log(response.data);
+    } catch (error: any) {
+      console.error(error.message);
+    }
+  }
+};
 // ==== Seed User Database ====
 export const seedUserDatabase = async () => {
   console.log('Seeding user database...');
@@ -173,7 +201,7 @@ export const seedUserDatabase = async () => {
 export const seedBoardPostDatabase = async () => {
   console.log('Seeding board post database...');
   const userRecords: User[] = await getAllUsersByType(UserType.CUSTOMER);
-  const zUserRecords: ZUserDocumentSchema[] = await userRecords.map((user) => UserDocumentSchema.parse(user));
+  const zUserRecords: ZUserDocumentSchema[] = userRecords.map((user) => UserDocumentSchema.parse(user));
   const boardPostRequests: ZBoardPostRequest[] = await generateSyntheticBoardPostData(zUserRecords);
   for (const record of boardPostRequests) {
     try {
@@ -199,46 +227,47 @@ export const seedBoardPostDatabase = async () => {
       console.error(error.message);
     }
   }
-  interface File {
-    name: string;
-    content: Buffer;
-  }
-
-  function addImagesToPostRequest(request: ZBoardPostRequest) {
-    const images: File[] = [];
-    for (const tag of request.tags) {
-      const allFiles = getFilesFromResourcesFolder();
-      const matchingImages = allFiles.filter((file: File) => file.name.toLowerCase().includes(tag.toLowerCase()));
-      images.push(...matchingImages);
-    }
-    request.images = images;
-  }
-
-  function getFilesFromResourcesFolder(): File[] {
-    const resourcesPath = path.join(__dirname, '..', '..', 'resources');
-    const files = fs.readdirSync(resourcesPath);
-
-    const imageFiles: File[] = [];
-    files.forEach((file) => {
-      const filePath = path.join(resourcesPath, file);
-      const fileStats = fs.statSync(filePath);
-
-      if (fileStats.isFile() && isImageFile(file)) {
-        const fileContent = fs.readFileSync(filePath);
-        const fileObject: File = {
-          name: file,
-          content: fileContent
-        };
-        imageFiles.push(fileObject);
-      }
-    });
-
-    return imageFiles;
-  }
-
-  function isImageFile(fileName: string): boolean {
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp']; // Add more if needed
-    const fileExtension = path.extname(fileName).toLowerCase();
-    return imageExtensions.includes(fileExtension);
-  }
 };
+
+interface File {
+  name: string;
+  content: Buffer;
+}
+
+function addImagesToPostRequest(request: ZBoardPostRequest) {
+  const images: File[] = [];
+  for (const tag of request.tags) {
+    const allFiles = getFilesFromResourcesFolder();
+    const matchingImages = allFiles.filter((file: File) => file.name.toLowerCase().includes(tag.toLowerCase()));
+    images.push(...matchingImages);
+  }
+  request.images = images;
+}
+
+function getFilesFromResourcesFolder(): File[] {
+  const resourcesPath = path.join(__dirname, '..', '..', 'resources');
+  const files = fs.readdirSync(resourcesPath);
+
+  const imageFiles: File[] = [];
+  files.forEach((file) => {
+    const filePath = path.join(resourcesPath, file);
+    const fileStats = fs.statSync(filePath);
+
+    if (fileStats.isFile() && isImageFile(file)) {
+      const fileContent = fs.readFileSync(filePath);
+      const fileObject: File = {
+        name: file,
+        content: fileContent
+      };
+      imageFiles.push(fileObject);
+    }
+  });
+
+  return imageFiles;
+}
+
+function isImageFile(fileName: string): boolean {
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp']; // Add more if needed
+  const fileExtension = path.extname(fileName).toLowerCase();
+  return imageExtensions.includes(fileExtension);
+}

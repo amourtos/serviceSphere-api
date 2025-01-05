@@ -35,7 +35,8 @@ export class BoardReplyService {
   public async fetchBoardReplyById(boardReplyId: string): Promise<IServiceResponse> {
     logger.info(`Fetching BoardReply:${boardReplyId} --- START`);
     const boardReply: BoardReply | null = await getBoardReplyById(boardReplyId);
-    if (!boardReplyId) {
+    if (!boardReply) {
+      // Check if boardReply is null
       this.message = `Error fetching boardReplyById:${boardReplyId}`;
       logger.error(`Fetching BoardReply:${boardReplyId} --- ERROR: ${this.message}`);
       return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, { boardReply });
@@ -48,17 +49,14 @@ export class BoardReplyService {
   public async fetchBoardRepliesByPostId(boardPostId: string): Promise<IServiceResponse> {
     logger.info(`Fetching BoardReplies by postId:${boardPostId} --- START`);
     const boardReplies: BoardReply[] = await getAllRepliesByPostId(boardPostId);
-    if (!boardPostId) {
+    if (boardReplies.length === 0) {
+      // Check if boardReplies array is empty
       this.message = `Error fetching boardReplies by postId:${boardPostId}`;
-      logger.error(`Fetching BoardReply:${boardPostId} --- ERROR: ${this.message}`);
-      return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, {
-        boardReply: boardReplies
-      });
+      logger.error(`Fetching BoardReplies:${boardPostId} --- ERROR: ${this.message}`);
+      return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_FAILURE, this.message, { boardReplies });
     }
-    logger.info(`Fetching BoardReply:${boardPostId} --- COMPLETE`);
-    this.message = `Fetching BoardReply by ID: success`;
-    return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, {
-      boardReply: boardReplies
-    });
+    logger.info(`Fetching BoardReplies:${boardPostId} --- COMPLETE`);
+    this.message = `Fetching BoardReplies by Post ID: success`;
+    return ServiceUtil.generateServiceResponse(ServiceStatusEnum.SERVICE_SUCCESS, this.message, { boardReplies });
   }
 }
