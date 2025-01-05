@@ -19,6 +19,14 @@ dotenv.config();
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY ? process.env.GOOGLE_API_KEY : '');
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
+const BoardReplyRequestSchema = z.object({
+  boardReplyId: z.string(),
+  userId: z.string(),
+  boardPostId: z.string(),
+  comment: z.string(),
+  price: z.string()
+});
+
 const BoardPostRequestSchema = z.object({
   userId: z.string(),
   title: z.string(),
@@ -81,10 +89,31 @@ type ZUser = z.infer<typeof UserSchema>;
 type ZBoardPost = z.infer<typeof BoardPostSchema>;
 type ZUserDocumentSchema = z.infer<typeof UserDocumentSchema>;
 type ZBoardPostRequest = z.infer<typeof BoardPostRequestSchema>;
+type ZBoardReplyRequestSchema = z.infer<typeof BoardReplyRequestSchema>;
 
 const userParser = StructuredOutputParser.fromZodSchema(z.array(UserSchema));
 const boardPostParser = StructuredOutputParser.fromZodSchema(z.array(BoardPostSchema));
 const boardPostRequestParser = StructuredOutputParser.fromZodSchema(z.array(BoardPostRequestSchema));
+const boardReplyRequestParser = StructuredOutputParser.fromZodSchema(z.array(BoardReplyRequestSchema));
+
+export async function generateSyntheticBoardReplyData(
+  users: ZUserDocumentSchema[],
+  boardPosts: ZBoardPost[]
+): Promise<ZBoardReplyRequestSchema[]> {
+  const prompt = `You are a helpful assistant that generates replies to board posts.
+  Generate 1  fictional board reply record.
+  The userId property should be any of the following: 
+  ${users
+    .filter((user) => user.userType === UserType.CONTRACTOR)
+    .map((user) => user.userId)
+    .join(', ')}
+  The boardPostId should be any of the following: ${boardPosts.map((boardPostId) => boardPostId).join(', ')}
+  The content of the board reply should reflect a relevant conversation between a customer looking to hire a contractor 
+  and a contractor bidding on the work.
+  `;
+  const response = await model.generateContent(prompt);
+  return boardReplyRequestParser.parse(response.response.text());
+}
 
 export async function generateSyntheticUserData(): Promise<ZUser[]> {
   const prompt = `You are a helpful assistant that generates User data.
