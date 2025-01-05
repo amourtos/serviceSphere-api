@@ -1,17 +1,21 @@
 import express, { Express, Request, Response } from 'express';
-import { ILogObj, Logger } from 'tslog';
 import connectDb from './config/mongo';
 import * as bodyParser from 'body-parser';
+import { BoardPostController } from './controllers/BoardPost.controller';
+import { UserController } from './controllers/User.controller';
+import { logger } from './config/logger';
+import cookieParser from 'cookie-parser';
+import { BoardReplyController } from './controllers/BoardReply.controller';
+import { seedBoardPostDatabase, seedBoardReplyData } from './modules/seed-database';
 
 const app: Express = express();
-const log: Logger<ILogObj> = new Logger();
-
 const port = process.env.PORT;
 
 // Connect to MongoDB
 connectDb();
 // configs
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 // routes
 // test
@@ -19,7 +23,21 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Typescript and node works');
 });
 
+app.use('/board-posts', new BoardPostController().router);
+app.use('/user', new UserController().router);
+app.use('/boardReplies', new BoardReplyController().router);
+
 // listen
 app.listen(port, () => {
-  log.info(`Listening on ${port}`);
+  logger.info(`Listening on ${port}`);
 });
+logger.info('Adding synthetic user data to Database');
+// seedUserDatabase();
+// seedBoardPostDatabase();
+// seedBoardReplyData();
+
+//TODO LIST
+// 1: seed data base: verify users
+// 2: restrict access to unverified users
+// 3: refine board post models and board replies for more structured detail information
+//    -- IE: add contact information for customers and contractors on their respective models

@@ -9,7 +9,7 @@ const mongoDbUri = process.env.MONGO_DB_URI ?? 'no uri provided';
 const connectDb = async (): Promise<void> => {
   try {
     await mongoose.connect(mongoDbUri, {
-      dbName: 'Atlas-payfac'
+      dbName: 'ServiceSphere'
     });
     log.info('MongoDB connected');
   } catch (error) {
