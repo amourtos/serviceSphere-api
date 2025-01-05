@@ -34,4 +34,10 @@ app.listen(port, () => {
 logger.info('Adding synthetic user data to Database');
 // seedUserDatabase();
 // seedBoardPostDatabase();
-seedBoardReplyData();
+// seedBoardReplyData();
+
+//TODO LIST
+// 1: seed data base: verify users
+// 2: restrict access to unverified users
+// 3: refine board post models and board replies for more structured detail information
+//    -- IE: add contact information for customers and contractors on their respective models
