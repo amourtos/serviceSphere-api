@@ -33,4 +33,4 @@ app.listen(port, () => {
 });
 logger.info('Adding synthetic user data to Database');
 // seedUserDatabase();
-seedBoardPostDatabase();
+// seedBoardPostDatabase();

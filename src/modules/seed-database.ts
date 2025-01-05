@@ -9,6 +9,10 @@ import { Tag } from '../models/BoardPost.model';
 import { getAllUsersByType } from '../mongoDB/database/User/user.download';
 import { UserType } from '../enums/UserType.enum';
 import { User } from '../models/User.model';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
+import File from 'form-data';
+import FormData from 'form-data';
 
 const client = connectDb();
 dotenv.config();
@@ -20,7 +24,8 @@ const BoardPostRequestSchema = z.object({
   title: z.string(),
   description: z.string(),
   estimatedPrice: z.number(),
-  tags: z.array(z.nativeEnum(Tag))
+  tags: z.array(z.nativeEnum(Tag)),
+  images: z.array(z.any())
 });
 
 const UserDocumentSchema = z.object({
@@ -103,7 +108,7 @@ export async function generateSyntheticBoardPostData(users: ZUserDocumentSchema[
   const prompt = `You are a helpful assistant that generates BoardPost Data.
     Generate 5 fictional boardPost records. 
     The userId property should be any of the following: ${users.map((user) => user.userId).join(', ')}
-    Ensure variety in the data and realistic values.
+    Ensure variety in the data and realistic values. One example should contain a Landscaping job.
      The title and description should reflect a homeowner that is looking to hire 
       a contractor for a variety of possible services and the tags should reflect the work description.
        Example would be a customer looking for a landscaper
@@ -144,15 +149,67 @@ export const seedBoardPostDatabase = async () => {
   for (const record of boardPostRequests) {
     try {
       console.log(record);
-      const response = await axios.post('http://localhost:3000/board-posts/create', record, {
+      console.log('Adding images to record');
+      addImagesToPostRequest(record);
+      // Create a FormData instance
+      const formData = new FormData();
+      formData.append('userId', record.userId);
+      formData.append('title', record.title);
+      formData.append('description', record.description);
+      formData.append('estimatedPrice', record.estimatedPrice);
+      record.tags.forEach((tag) => formData.append('tags', tag));
+      record.images.forEach((image) => formData.append('images', image.content, image.name));
+      const response = await axios.post('http://localhost:3000/board-posts/create', formData, {
         headers: {
-          Authorization: `token=ADmin12!@`,
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'multipart/form-data',
+          Authorization: `token=ADmin12!@`
         }
       });
       console.log(response.data);
     } catch (error: any) {
       console.error(error.message);
     }
+  }
+  interface File {
+    name: string;
+    content: Buffer;
+  }
+
+  function addImagesToPostRequest(request: ZBoardPostRequest) {
+    const images: File[] = [];
+    for (const tag of request.tags) {
+      const allFiles = getFilesFromResourcesFolder();
+      const matchingImages = allFiles.filter((file: File) => file.name.toLowerCase().includes(tag.toLowerCase()));
+      images.push(...matchingImages);
+    }
+    request.images = images;
+  }
+
+  function getFilesFromResourcesFolder(): File[] {
+    const resourcesPath = path.join(__dirname, '..', '..', 'resources');
+    const files = fs.readdirSync(resourcesPath);
+
+    const imageFiles: File[] = [];
+    files.forEach((file) => {
+      const filePath = path.join(resourcesPath, file);
+      const fileStats = fs.statSync(filePath);
+
+      if (fileStats.isFile() && isImageFile(file)) {
+        const fileContent = fs.readFileSync(filePath);
+        const fileObject: File = {
+          name: file,
+          content: fileContent
+        };
+        imageFiles.push(fileObject);
+      }
+    });
+
+    return imageFiles;
+  }
+
+  function isImageFile(fileName: string): boolean {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp']; // Add more if needed
+    const fileExtension = path.extname(fileName).toLowerCase();
+    return imageExtensions.includes(fileExtension);
   }
 };

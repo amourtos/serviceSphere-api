@@ -62,7 +62,7 @@ export class BoardPostService {
         for (const imageFile of imageFiles) {
           const image: Image = await Image.generateNewImage(userId, boardPost.boardPostId, imageFile.originalname);
           imageFile.originalname = image.fileName;
-          boardPost.imageIds.push(...image.imageId);
+          boardPost.imageIds.push(image.imageId);
           await ImageUtils.saveImageToTemporaryDirectory(tempDir, imageFile);
           const savedImage: IImage = await saveNewImage(image);
           if (!savedImage) {
